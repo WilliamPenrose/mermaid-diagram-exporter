@@ -1,0 +1,3791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mermaid to Image Converter - Free Online Tool</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="https://cdn-ai.onspace.ai/onspace/project/image/XfGR9U5chmpno73Qp2quaX/onspace_favicon.svg">
+    <link rel="apple-touch-icon" href="https://cdn-ai.onspace.ai/onspace/project/image/XfGR9U5chmpno73Qp2quaX/onspace_favicon.svg">
+    <meta name="description" content="Convert Mermaid diagrams to PNG/SVG images instantly. Free online tool to transform your Mermaid code into high-quality images. No signup required - just paste, convert, and download.">
+    
+    <!-- SEO Meta Tags -->
+    <meta name="keywords" content="mermaid to image, mermaid converter, diagram to png, flowchart to image, online diagram converter, free mermaid tool, mermaid to svg, chart converter, mermaid diagram export">
+    <meta name="author" content="OnSpace.AI">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="English">
+    <link rel="canonical" href="https://mermaid-diagram-tool.onspace.app">
+    
+    <!-- Open Graph Tags -->
+    <meta property="og:title" content="Mermaid to Image Converter - Free Online Tool">
+    <meta property="og:description" content="Convert Mermaid diagrams to PNG/SVG images instantly. Free online tool to transform your Mermaid code into high-quality images. No signup required - just paste, convert, and download.">
+    <meta property="og:url" content="https://mermaid-diagram-tool.onspace.app">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Mermaid Diagram Tool">
+    <meta property="og:image" content="https://cdn-ai.onspace.ai/onspace/project/image/XfGR9U5chmpno73Qp2quaX/onspace_favicon.svg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Mermaid Diagram Tool - Create professional diagrams online for free">
+    <meta property="og:locale" content="en_US">
+    
+    <!-- Twitter Card Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Mermaid to Image Converter - Free Online Tool">
+    <meta name="twitter:description" content="Convert Mermaid diagrams to PNG/SVG images instantly. Free online tool to transform your Mermaid code into high-quality images. No signup required - just paste, convert, and download.">
+    <meta name="twitter:image" content="https://cdn-ai.onspace.ai/onspace/project/image/XfGR9U5chmpno73Qp2quaX/onspace_favicon.svg">
+    <meta name="twitter:url" content="https://mermaid-diagram-tool.onspace.app">
+    <meta name="twitter:site" content="@WilliamPenrose_">
+    <meta name="twitter:creator" content="@WilliamPenrose_">
+    
+    <!-- External Resources -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/loader.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Base Styles */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.5);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(148, 163, 184, 0.7);
+        }
+        
+        /* Background Animation */
+        .floating-particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        .floating-particles::before {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(29, 161, 242, 0.3);
+            border-radius: 50%;
+            animation: float1 20s infinite linear;
+        }
+        
+        .floating-particles::after {
+            content: '';
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            background: rgba(29, 161, 242, 0.4);
+            border-radius: 50%;
+            animation: float2 25s infinite linear;
+        }
+        
+        @keyframes float1 {
+            0% { transform: translateX(-100px) translateY(100vh) rotate(0deg); }
+            100% { transform: translateX(calc(100vw + 100px)) translateY(-100px) rotate(360deg); }
+        }
+        
+        @keyframes float2 {
+            0% { transform: translateX(100vw) translateY(100vh) rotate(0deg); }
+            100% { transform: translateX(-100px) translateY(-100px) rotate(-360deg); }
+        }
+
+        /* Monaco Editor Container */
+        #editor-container {
+            height: 100%;
+            min-height: 300px;
+        }
+        
+        /* Diagram Display */
+        #mermaid-output {
+            border-radius: 8px;
+            min-height: 300px;
+            overflow: hidden;
+            position: relative;
+            cursor: grab;
+        }
+        
+        #mermaid-output.dragging {
+            cursor: grabbing;
+        }
+        
+        #diagram-viewport {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        #diagram-container {
+            transform-origin: 0 0;
+            transition: transform 0.1s ease-out;
+            padding: 20px;
+            min-width: 100%;
+            min-height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Zoom Controls */
+        .zoom-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            z-index: 10;
+            background: rgba(30, 41, 59, 0.9);
+            backdrop-filter: blur(8px);
+            border-radius: 8px;
+            padding: 6px;
+            border: 1px solid rgba(100, 116, 139, 0.2);
+        }
+        
+        .zoom-btn {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(51, 65, 85, 0.8);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            border-radius: 6px;
+            color: #cbd5e1;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 12px;
+        }
+        
+        .zoom-btn:hover {
+            background: rgba(29, 161, 242, 0.8);
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        .zoom-level {
+            font-size: 9px;
+            color: #94a3b8;
+            text-align: center;
+            padding: 2px 4px;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+        
+        /* Background Themes */
+        .bg-white-theme {
+            background-color: #ffffff !important;
+            color: #374151 !important;
+        }
+        
+        .bg-black-theme {
+            background-color: #0f0f0f !important;
+            color: #9ca3af !important;
+        }
+        
+        .bg-transparent-theme {
+            background-color: transparent !important;
+            background-image: linear-gradient(45deg, #f3f4f6 25%, transparent 25%), 
+                            linear-gradient(-45deg, #f3f4f6 25%, transparent 25%), 
+                            linear-gradient(45deg, transparent 75%, #f3f4f6 75%), 
+                            linear-gradient(-45deg, transparent 75%, #f3f4f6 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            color: #374151 !important;
+        }
+        
+        /* UI State Classes */
+        .bg-button-active {
+            border-color: #1DA1F2 !important;
+            box-shadow: 0 0 0 2px rgba(29, 161, 242, 0.3);
+        }
+        
+        .theme-button-active {
+            background: linear-gradient(135deg, #1DA1F2, #0d8bd9) !important;
+            color: white !important;
+            box-shadow: 0 0 0 2px rgba(29, 161, 242, 0.3);
+        }
+        
+        .loading-spinner {
+            border: 2px solid #374151;
+            border-top: 2px solid #1DA1F2;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* File Manager Styles */
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            margin: 2px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 12px;
+            backdrop-filter: blur(4px);
+        }
+        
+        .file-item:hover {
+            background-color: rgba(51, 65, 85, 0.6);
+            transform: translateX(2px);
+        }
+        
+        .file-item.active {
+            background: linear-gradient(135deg, #1DA1F2, #0d8bd9);
+            color: white;
+            box-shadow: 0 4px 12px rgba(29, 161, 242, 0.3);
+        }
+        
+        .file-item .file-name {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin-left: 8px;
+        }
+        
+        .file-item .file-actions {
+            opacity: 0;
+            display: flex;
+            gap: 4px;
+            margin-left: 8px;
+        }
+        
+        .file-item:hover .file-actions {
+            opacity: 1;
+        }
+        
+        .file-item .file-type {
+            display: inline-block;
+            background: rgba(51, 65, 85, 0.8);
+            color: #cbd5e1;
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 6px;
+            margin-left: 8px;
+            font-weight: 500;
+        }
+        
+        .empty-files {
+            text-align: center;
+            padding: 20px;
+            color: #64748b;
+            font-size: 11px;
+        }
+        
+        /* Mobile Collapsible Sections */
+        .mobile-section {
+            transition: all 0.3s ease;
+        }
+        
+        .mobile-section.collapsed {
+            max-height: 48px;
+            overflow: hidden;
+        }
+        
+        .mobile-section.expanded {
+            max-height: none;
+        }
+        
+        .section-toggle {
+            display: none;
+            width: 100%;
+            text-align: left;
+            padding: 12px 16px;
+            background: rgba(51, 65, 85, 0.8);
+            border: none;
+            color: #cbd5e1;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .section-toggle:hover {
+            background: rgba(71, 85, 105, 0.8);
+        }
+        
+        .section-toggle i {
+            transition: transform 0.3s ease;
+        }
+        
+        .section-toggle.expanded i {
+            transform: rotate(180deg);
+        }
+        
+        /* Mobile Toolbar */
+        .mobile-toolbar {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid rgba(100, 116, 139, 0.3);
+            padding: 12px 16px;
+            z-index: 1000;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .mobile-toolbar button {
+            flex: 1;
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px 12px;
+            font-size: 12px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        
+        /* Fullscreen Mode */
+        .fullscreen-mode .file-manager-panel {
+            display: none !important;
+        }
+        
+        .fullscreen-mode .editor-panel {
+            width: 50% !important;
+        }
+        
+        .fullscreen-mode .preview-panel {
+            width: 50% !important;
+        }
+        
+        /* Desktop Layout */
+        @media (min-width: 1024px) {
+            .desktop-layout {
+                display: flex;
+                gap: 24px;
+                height: calc(100vh - 140px);
+            }
+            
+            .file-manager-panel {
+                width: 280px;
+                flex-shrink: 0;
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .editor-panel {
+                width: 400px;
+                flex-shrink: 0;
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .preview-panel {
+                flex: 1;
+                min-width: 0;
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .theme-controls {
+                flex-shrink: 0;
+                white-space: nowrap;
+            }
+            
+            .panel-header {
+                flex-shrink: 0;
+            }
+            
+            .panel-content {
+                flex: 1;
+                min-height: 0;
+                overflow: hidden;
+            }
+        }
+        
+        /* Mobile Layout */
+        @media (max-width: 1023px) {
+            .section-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+            
+            .mobile-toolbar {
+                display: flex;
+            }
+            
+            .main-container {
+                padding-bottom: 80px !important;
+            }
+            
+            /* Header adjustments */
+            header {
+                padding: 6px 8px;
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+            
+            .header-left {
+                flex: 1;
+                min-width: 180px;
+            }
+            
+            .header-right {
+                flex-shrink: 0;
+                gap: 4px;
+            }
+            
+            .header-btn {
+                padding: 6px 8px;
+                font-size: 11px;
+                min-width: 36px;
+                min-height: 36px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .header-btn span {
+                display: none;
+            }
+            
+            h1 {
+                font-size: 13px;
+            }
+            
+            /* Compact header for small screens */
+            .header-left .flex {
+                gap: 8px;
+            }
+            
+            .header-left .hidden.sm\\:flex {
+                display: none !important;
+            }
+            
+            /* Mobile sections */
+            .mobile-layout {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                height: auto;
+                min-height: calc(100vh - 180px);
+            }
+            
+            .mobile-section {
+                background: rgba(30, 41, 59, 0.9);
+                backdrop-filter: blur(8px);
+                border: 1px solid rgba(100, 116, 139, 0.3);
+                border-radius: 12px;
+                overflow: hidden;
+            }
+            
+            .mobile-section.collapsed .section-content {
+                display: none;
+            }
+            
+            .section-content {
+                padding: 12px;
+            }
+            
+            /* File manager mobile - collapsed by default */
+            .file-manager-mobile {
+                order: 1;
+            }
+            
+            .file-item .file-actions {
+                opacity: 1;
+            }
+            
+            /* Editor mobile - expanded by default */
+            .editor-mobile {
+                order: 2;
+            }
+            
+            #editor-container-mobile {
+                min-height: 200px;
+                height: 200px;
+            }
+            
+            /* Preview mobile - expanded by default */
+            .preview-mobile {
+                order: 3;
+                flex: 1;
+            }
+            
+            #mermaid-output-mobile {
+                min-height: 350px;
+                height: 50vh;
+                max-height: 600px;
+            }
+            
+            /* Controls mobile */
+            .mobile-controls {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 6px;
+                margin-bottom: 8px;
+            }
+            
+            .mobile-controls select {
+                flex: 1;
+                min-width: 100px;
+                padding: 6px 8px;
+                font-size: 13px;
+                height: 36px;
+            }
+            
+            .mobile-controls button {
+                padding: 6px 8px;
+                font-size: 11px;
+                min-width: 36px;
+                min-height: 36px;
+            }
+            
+            /* Theme controls mobile */
+            .theme-controls-mobile {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 6px;
+                align-items: center;
+                margin-bottom: 8px;
+            }
+            
+            .theme-group {
+                display: flex;
+                gap: 4px;
+                align-items: center;
+                flex-wrap: wrap;
+            }
+            
+            .theme-group span {
+                font-size: 11px;
+                margin-right: 4px;
+            }
+            
+            .theme-group button {
+                padding: 4px 8px;
+                font-size: 10px;
+                height: 28px;
+            }
+            
+            .bg-controls {
+                display: flex;
+                gap: 4px;
+                align-items: center;
+            }
+            
+            .bg-controls span {
+                font-size: 11px;
+                margin-right: 4px;
+            }
+            
+            .bg-controls button {
+                width: 28px;
+                height: 28px;
+                border-radius: 4px;
+                border: 2px solid rgba(100, 116, 139, 0.5);
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+            
+            /* Dropdown mobile */
+            #export-dropdown,
+            #language-dropdown {
+                position: fixed !important;
+                top: 50px !important;
+                left: 4px !important;
+                right: 4px !important;
+                width: auto !important;
+                min-width: auto !important;
+                max-height: 60vh;
+                overflow-y: auto;
+                z-index: 999999 !important;
+                border-radius: 8px;
+            }
+            
+            .export-resolution,
+            .language-option {
+                padding: 12px 16px;
+                font-size: 14px;
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            
+            /* Zoom controls mobile */
+            .zoom-controls {
+                top: 8px !important;
+                right: 8px !important;
+                padding: 4px;
+                gap: 1px;
+            }
+            
+            .zoom-btn {
+                width: 32px !important;
+                height: 32px !important;
+                font-size: 12px !important;
+            }
+            
+            .zoom-level {
+                font-size: 8px !important;
+                padding: 1px 2px;
+            }
+        }
+        
+        /* Extra small screens */
+        @media (max-width: 480px) {
+            header {
+                padding: 4px 6px;
+            }
+            
+            .header-btn {
+                padding: 4px 6px;
+                min-width: 32px;
+                min-height: 32px;
+                font-size: 10px;
+            }
+            
+            h1 {
+                font-size: 11px;
+            }
+            
+            .mobile-layout {
+                gap: 8px;
+            }
+            
+            .section-content {
+                padding: 8px;
+            }
+            
+            #editor-container-mobile {
+                min-height: 180px;
+                height: 180px;
+            }
+            
+            .preview-mobile {
+                min-height: 400px;
+            }
+            
+            #mermaid-output-mobile {
+                min-height: 350px;
+                height: 50vh;
+                max-height: 600px;
+            }
+            
+            .mobile-toolbar {
+                padding: 6px 8px;
+                gap: 4px;
+            }
+            
+            .mobile-toolbar button {
+                min-width: 60px;
+                max-width: 80px;
+                padding: 4px 6px;
+                font-size: 10px;
+                height: 32px;
+            }
+            
+            .theme-controls-mobile {
+                gap: 4px;
+            }
+            
+            .theme-group button {
+                padding: 3px 6px;
+                font-size: 9px;
+                height: 24px;
+            }
+            
+            .bg-controls button {
+                width: 24px;
+                height: 24px;
+            }
+        }
+        
+        /* Touch optimization */
+        @media (hover: none) and (pointer: coarse) {
+            .file-item:hover,
+            .header-btn:hover,
+            .zoom-btn:hover,
+            button:hover {
+                transform: none;
+            }
+            
+            .file-item:active,
+            .header-btn:active,
+            .zoom-btn:active,
+            button:active {
+                transform: scale(0.95);
+                opacity: 0.8;
+            }
+            
+            .file-item .file-actions {
+                opacity: 1 !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-mono min-h-screen relative overflow-hidden">
+    <!-- Animated Background -->
+    <div class="absolute inset-0 opacity-5">
+        <div class="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-blue-400/10 to-blue-600/10"></div>
+        <div class="floating-particles"></div>
+    </div>
+    
+    <!-- Header -->
+    <header class="relative z-[100000] bg-slate-800/90 backdrop-blur-sm border-b border-slate-700/50 px-6 py-3" style="z-index: 999999;">
+        <div class="w-full flex items-center justify-between">
+            <div class="header-left flex items-center space-x-3">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-500 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-project-diagram text-white text-sm"></i>
+                    </div>
+                    <h1 class="text-lg font-bold text-white tracking-tight" data-i18n="appName">Mermaid to Image Converter</h1>
+                </div>
+                <div class="hidden sm:flex items-center space-x-3">
+                    <span class="text-sm text-emerald-400 font-bold bg-emerald-900/30 border border-emerald-500/50 px-4 py-2 rounded-full animate-pulse shadow-lg" data-i18n="free">FREE</span>
+                    <span class="text-xs text-slate-400 bg-slate-800/50 px-2 py-1 rounded-full" data-i18n="appSubtitle">Convert Diagrams to Images</span>
+                    <a href="https://x.com/WilliamPenrose_" target="_blank" class="text-xs text-slate-400 hover:text-[#1DA1F2] transition-colors duration-200 bg-slate-800/50 px-2 py-1 rounded-full flex items-center space-x-1 backdrop-blur-sm">
+                        <i class="fab fa-twitter"></i>
+                        <span>@WilliamPenrose_</span>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="header-right flex items-center space-x-2">
+                <!-- Language Selector -->
+                <div class="relative" id="language-selector">
+                    <button id="language-btn" class="header-btn px-3 py-1.5 bg-slate-700/80 hover:bg-slate-600/80 text-white rounded-lg text-xs transition-all duration-200 flex items-center space-x-1 backdrop-blur-sm border border-slate-600/50">
+                        <i class="fas fa-globe text-xs"></i>
+                        <span class="hidden sm:inline text-xs" id="current-language">English</span>
+                        <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                    </button>
+                    <div id="language-dropdown" class="absolute right-0 top-full mt-1 bg-slate-800/95 backdrop-blur-sm border border-slate-600/50 rounded-lg shadow-xl hidden min-w-36" style="z-index: 9999999;">
+                        <div class="p-1">
+                            <button class="language-option w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-slate-700/80 rounded-md transition-colors duration-150" data-lang="en">
+                                English
+                            </button>
+                            <button class="language-option w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-slate-700/80 rounded-md transition-colors duration-150" data-lang="zh-CN">
+                                中文简体
+                            </button>
+                            <button class="language-option w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-slate-700/80 rounded-md transition-colors duration-150" data-lang="ja">
+                                日本語
+                            </button>
+                            <button class="language-option w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-slate-700/80 rounded-md transition-colors duration-150" data-lang="de">
+                                Deutsch
+                            </button>
+                            <button class="language-option w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-slate-700/80 rounded-md transition-colors duration-150" data-lang="ko">
+                                한국어
+                            </button>
+                            <button class="language-option w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-slate-700/80 rounded-md transition-colors duration-150" data-lang="id">
+                                Bahasa Indonesia
+                            </button>
+                            <button class="language-option w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-slate-700/80 rounded-md transition-colors duration-150" data-lang="fr">
+                                Français
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="fullscreen-btn" class="header-btn px-3 py-1.5 bg-slate-700/80 hover:bg-slate-600/80 text-white rounded-lg text-xs transition-all duration-200 flex items-center space-x-1 backdrop-blur-sm border border-slate-600/50">
+                    <i class="fas fa-expand text-xs" id="fullscreen-icon"></i>
+                    <span class="hidden sm:inline text-xs" data-i18n="fullscreen">Fullscreen</span>
+                </button>
+                
+                <!-- Export Buttons -->
+                <div class="relative">
+                    <button id="export-btn" class="header-btn px-3 py-1.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg text-xs transition-all duration-200 flex items-center space-x-1 shadow-lg">
+                        <i class="fas fa-download text-xs"></i>
+                        <span class="hidden sm:inline text-xs" data-i18n="exportPNG">PNG</span>
+                        <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                    </button>
+                    <div id="export-dropdown" class="absolute right-0 top-full mt-1 bg-slate-800/95 backdrop-blur-sm border border-slate-600/50 rounded-lg shadow-xl hidden min-w-36" style="z-index: 9999999;">
+                        <div class="p-2">
+                            <div class="text-xs text-slate-300 mb-2 font-medium" data-i18n="selectScale">Select Scale:</div>
+                            <button class="export-resolution w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-slate-700/80 rounded-md transition-colors duration-150" data-scale="1">
+                                <i class="fas fa-image mr-2"></i>1x
+                            </button>
+                            <button class="export-resolution w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-slate-700/80 rounded-md transition-colors duration-150" data-scale="2">
+                                <i class="fas fa-image mr-2"></i>2x
+                            </button>
+                            <button class="export-resolution w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-slate-700/80 rounded-md transition-colors duration-150" data-scale="3">
+                                <i class="fas fa-image mr-2"></i>3x
+                            </button>
+                            <button class="export-resolution w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-slate-700/80 rounded-md transition-colors duration-150" data-scale="4">
+                                <i class="fas fa-image mr-2"></i>4x
+                            </button>
+                            <button class="export-resolution w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-slate-700/80 rounded-md transition-colors duration-150" data-scale="5">
+                                <i class="fas fa-image mr-2"></i>5x
+                            </button>
+                            <hr class="border-slate-600/50 my-2">
+                            <button id="export-custom" class="w-full text-left px-3 py-2 text-xs text-cyan-400 hover:bg-slate-700/80 rounded-md transition-colors duration-150">
+                                <i class="fas fa-cog mr-2"></i><span data-i18n="customSize">Custom Size...</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="export-svg-btn" class="header-btn px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-lg text-xs transition-all duration-200 flex items-center space-x-1 shadow-lg">
+                    <i class="fas fa-file-code text-xs"></i>
+                    <span class="hidden sm:inline text-xs" data-i18n="exportSVG">SVG</span>
+                </button>
+                <button id="copy-btn" class="header-btn px-3 py-1.5 bg-gradient-to-r from-violet-600 to-violet-700 hover:from-violet-700 hover:to-violet-800 text-white rounded-lg text-xs transition-all duration-200 flex items-center space-x-1 shadow-lg">
+                    <i class="fas fa-copy text-xs"></i>
+                    <span class="hidden sm:inline text-xs" data-i18n="copyImage">Copy</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="relative z-10 w-full main-container px-6 py-6" id="main-content">
+        <!-- Desktop Layout -->
+        <div class="desktop-layout hidden lg:flex" id="desktop-layout">
+            <!-- File Manager Sidebar -->
+            <div class="file-manager-panel bg-slate-800/80 backdrop-blur-sm rounded-xl border border-slate-700/50 overflow-hidden shadow-xl">
+                <div class="panel-header bg-slate-700/80 backdrop-blur-sm px-4 py-3 border-b border-slate-600/50 flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-folder text-amber-400"></i>
+                        <h3 class="text-xs font-semibold text-slate-200" data-i18n="fileManager">File Manager</h3>
+                    </div>
+                    <button id="add-new-file" class="text-emerald-400 hover:text-emerald-300 text-xs p-1 rounded-md hover:bg-slate-600/50 transition-all duration-200" data-i18n-title="newFile">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                <div class="panel-content overflow-y-auto">
+                    <div class="p-2">
+                        <!-- Current file indicator -->
+                        <div class="mb-2 p-2 bg-cyan-900/30 border border-cyan-600/50 rounded-lg text-xs text-cyan-300 backdrop-blur-sm" data-indicator="current-file">
+                            <i class="fas fa-edit mr-1"></i>
+                            <span data-i18n="currentEditing">Currently Editing</span>
+                        </div>
+                        
+                        <!-- Saved files list -->
+                        <div class="text-xs text-slate-400 mb-2 px-2 font-medium" data-i18n="savedFiles">Saved Files:</div>
+                        <div id="saved-files-list">
+                            <!-- Files will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Editor Panel -->
+            <div class="editor-panel bg-slate-800/80 backdrop-blur-sm rounded-xl border border-slate-700/50 overflow-hidden shadow-xl">
+                <div class="panel-header bg-slate-700/80 backdrop-blur-sm px-4 py-3 border-b border-slate-600/50">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-code text-blue-400"></i>
+                            <h3 class="text-xs font-semibold text-slate-200" data-i18n="codeEditor">Mermaid Code Editor</h3>
+                        </div>
+                        <button id="save-file-btn" class="px-3 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-xs rounded-lg transition-all duration-200 shadow-lg">
+                            <i class="fas fa-save mr-1"></i><span data-i18n="saveFile">Save File</span>
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <label class="text-xs text-slate-300 font-medium" data-i18n="chartType">Chart Type:</label>
+                        <select id="chart-type" class="bg-slate-600/80 backdrop-blur-sm border border-slate-500/50 text-slate-100 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400/50 transition-all duration-200 flex-1">
+                            <option value="flowchart" data-i18n="flowchart">Flowchart</option>
+                            <option value="sequence" data-i18n="sequence">Sequence Diagram</option>
+                            <option value="class" data-i18n="class">Class Diagram</option>
+                            <option value="state" data-i18n="state">State Diagram</option>
+                            <option value="gantt" data-i18n="gantt">Gantt Chart</option>
+                            <option value="pie" data-i18n="pie">Pie Chart</option>
+                            <option value="erdiagram" data-i18n="erdiagram">ER Diagram</option>
+                            <option value="journey" data-i18n="journey">User Journey</option>
+                            <option value="quadrant" data-i18n="quadrant">Quadrant Chart</option>
+                            <option value="requirement" data-i18n="requirement">Requirement Diagram</option>
+                            <option value="mindmap" data-i18n="mindmap">Mindmap</option>
+                            <option value="timeline" data-i18n="timeline">Timeline</option>
+                            <option value="c4context" data-i18n="c4context">C4 Context</option>
+                        </select>
+                        <div class="flex items-center space-x-1">
+                            <button id="undo-btn" class="px-2 py-1 bg-slate-600/80 hover:bg-slate-500/80 text-slate-300 rounded-md text-xs transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed" title="Undo (Ctrl+Z)">
+                                <i class="fas fa-undo text-xs"></i>
+                            </button>
+                            <button id="redo-btn" class="px-2 py-1 bg-slate-600/80 hover:bg-slate-500/80 text-slate-300 rounded-md text-xs transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed" title="Redo (Ctrl+Y)">
+                                <i class="fas fa-redo text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div id="editor-container" class="panel-content"></div>
+            </div>
+
+            <!-- Preview Panel -->
+            <div class="preview-panel bg-slate-800/80 backdrop-blur-sm rounded-xl border border-slate-700/50 overflow-hidden shadow-xl">
+                <div class="panel-header bg-slate-700/80 backdrop-blur-sm px-4 py-3 border-b border-slate-600/50 flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-eye text-emerald-400"></i>
+                            <h3 class="text-xs font-semibold text-slate-200" data-i18n="livePreview">Live Preview</h3>
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            <div class="w-2 h-2 rounded-full bg-green-400" id="status-dot"></div>
+                            <span class="text-xs text-green-400" id="status-text" data-i18n="ready">Ready</span>
+                        </div>
+                    </div>
+                    <div class="theme-controls flex items-center space-x-4">
+                        <div class="flex items-center space-x-1">
+                            <span class="text-xs text-slate-400 font-medium" data-i18n="theme">Theme:</span>
+                            <button id="theme-classic" class="text-xs px-2 py-1.5 bg-slate-600/80 hover:bg-slate-500/80 text-slate-300 rounded-md transition-all duration-200 theme-button-active backdrop-blur-sm">
+                                <i class="fas fa-shapes mr-1"></i><span data-i18n="classic">Classic</span>
+                            </button>
+                            <button id="theme-hand" class="text-xs px-2 py-1.5 bg-slate-600/80 hover:bg-slate-500/80 text-slate-300 rounded-md transition-all duration-200 backdrop-blur-sm">
+                                <i class="fas fa-pencil-alt mr-1"></i><span data-i18n="handDraw">Hand Draw</span>
+                            </button>
+                        </div>
+                        <div class="bg-controls flex items-center space-x-1">
+                            <span class="text-xs text-slate-400 font-medium" data-i18n="background">Background:</span>
+                            <button id="bg-white" class="w-5 h-5 bg-white border-2 border-slate-400 rounded hover:border-slate-200 transition-colors duration-200 bg-button-active" data-i18n-title="whiteBackground"></button>
+                            <button id="bg-black" class="w-5 h-5 bg-slate-900 border-2 border-slate-600 rounded hover:border-slate-400 transition-colors duration-200" data-i18n-title="blackBackground"></button>
+                            <button id="bg-transparent" class="w-5 h-5 border-2 border-slate-400 rounded hover:border-slate-200 transition-colors duration-200 relative" data-i18n-title="transparentBackground" style="background: linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%); background-size: 4px 4px; background-position: 0 0, 0 2px, 2px -2px, -2px 0px;"></button>
+                        </div>
+                    </div>
+                </div>
+                <div id="mermaid-output" class="panel-content text-gray-400 bg-white transition-colors duration-300">
+                    <!-- Zoom Controls -->
+                    <div class="zoom-controls">
+                        <button class="zoom-btn" id="zoom-in" title="Zoom In">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <div class="zoom-level" id="zoom-level">100%</div>
+                        <button class="zoom-btn" id="zoom-out" title="Zoom Out">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <button class="zoom-btn" id="zoom-reset" title="Reset Zoom">
+                            <i class="fas fa-expand-arrows-alt"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Diagram Viewport -->
+                    <div id="diagram-viewport" class="w-full h-full">
+                        <div id="diagram-container">
+                        <div class="text-center">
+                            <i class="fas fa-image text-4xl mb-4 text-gray-600"></i>
+                            <p data-i18n="inputInstructions">Input Mermaid syntax in the left editor</p>
+                            <p class="text-sm mt-2" data-i18n="previewHere">Your diagram will be converted to image here</p>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+            <!-- Mobile Layout -->
+            <div class="mobile-layout lg:hidden" id="mobile-layout">
+                <!-- File Manager Section - Collapsed by default -->
+                <div class="mobile-section file-manager-mobile collapsed" id="file-manager-section">
+                    <button class="section-toggle" onclick="toggleSection('file-manager-section')">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-folder text-amber-400 text-sm"></i>
+                            <span data-i18n="fileManager" class="text-sm">File Manager</span>
+                        </div>
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </button>
+                    <div class="section-content">
+                        <!-- Current file indicator -->
+                        <div class="mb-2 p-2 bg-cyan-900/30 border border-cyan-600/50 rounded-lg text-xs text-cyan-300" data-indicator="current-file">
+                            <i class="fas fa-edit mr-1"></i>
+                            <span data-i18n="currentEditing">Currently Editing</span>
+                        </div>
+                        
+                        <!-- File actions -->
+                        <div class="flex gap-2 mb-2">
+                            <button id="add-new-file-mobile" class="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white px-3 py-2 rounded-lg text-xs transition-all duration-200 flex items-center justify-center gap-1">
+                                <i class="fas fa-plus text-xs"></i>
+                                <span data-i18n="newFile">New File</span>
+                            </button>
+                            <button id="save-file-btn-mobile" class="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-3 py-2 rounded-lg text-xs transition-all duration-200 flex items-center justify-center gap-1">
+                                <i class="fas fa-save text-xs"></i>
+                                <span data-i18n="saveFile">Save File</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Saved files list -->
+                        <div class="text-xs text-slate-400 mb-1 font-medium" data-i18n="savedFiles">Saved Files:</div>
+                        <div id="saved-files-list-mobile">
+                            <!-- Files will be populated here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Editor Section - Expanded by default -->
+                <div class="mobile-section editor-mobile expanded" id="editor-section">
+                    <button class="section-toggle" onclick="toggleSection('editor-section')">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-code text-blue-400 text-sm"></i>
+                            <span data-i18n="codeEditor" class="text-sm">Code Editor</span>
+                        </div>
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </button>
+                    <div class="section-content">
+                        <!-- Mobile controls -->
+                        <div class="mobile-controls">
+                            <select id="chart-type-mobile" class="bg-slate-600/80 backdrop-blur-sm border border-slate-500/50 text-slate-100 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400/50 transition-all duration-200">
+                                <option value="flowchart" data-i18n="flowchart">Flowchart</option>
+                                <option value="sequence" data-i18n="sequence">Sequence Diagram</option>
+                                <option value="class" data-i18n="class">Class Diagram</option>
+                                <option value="state" data-i18n="state">State Diagram</option>
+                                <option value="gantt" data-i18n="gantt">Gantt Chart</option>
+                                <option value="pie" data-i18n="pie">Pie Chart</option>
+                                <option value="erdiagram" data-i18n="erdiagram">ER Diagram</option>
+                                <option value="journey" data-i18n="journey">User Journey</option>
+                                <option value="quadrant" data-i18n="quadrant">Quadrant Chart</option>
+                                <option value="requirement" data-i18n="requirement">Requirement Diagram</option>
+                                <option value="mindmap" data-i18n="mindmap">Mindmap</option>
+                                <option value="timeline" data-i18n="timeline">Timeline</option>
+                                <option value="c4context" data-i18n="c4context">C4 Context</option>
+                            </select>
+                            <button id="undo-btn-mobile" class="bg-slate-600/80 hover:bg-slate-500/80 text-slate-300 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed" title="Undo">
+                                <i class="fas fa-undo"></i>
+                            </button>
+                            <button id="redo-btn-mobile" class="bg-slate-600/80 hover:bg-slate-500/80 text-slate-300 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed" title="Redo">
+                                <i class="fas fa-redo"></i>
+                            </button>
+                        </div>
+                        
+                        <div id="editor-container-mobile" class="rounded-lg overflow-hidden border border-slate-600/50"></div>
+                    </div>
+                </div>
+
+                <!-- Preview Section - Expanded by default -->
+                <div class="mobile-section preview-mobile expanded" id="preview-section">
+                    <button class="section-toggle" onclick="toggleSection('preview-section')">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-eye text-emerald-400 text-sm"></i>
+                            <span data-i18n="livePreview" class="text-sm">Live Preview</span>
+                            <div class="flex items-center space-x-1 ml-2">
+                                <div class="w-2 h-2 rounded-full bg-green-400" id="status-dot-mobile"></div>
+                                <span class="text-xs text-green-400" id="status-text-mobile" data-i18n="ready">Ready</span>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </button>
+                    <div class="section-content">
+                        <!-- Theme controls mobile -->
+                        <div class="theme-controls-mobile">
+                            <div class="theme-group">
+                                <span class="text-slate-400 font-medium" data-i18n="theme">Theme:</span>
+                                <button id="theme-classic-mobile" class="bg-slate-600/80 hover:bg-slate-500/80 text-slate-300 rounded-lg transition-all duration-200 theme-button-active">
+                                    <i class="fas fa-shapes mr-1"></i><span data-i18n="classic">Classic</span>
+                                </button>
+                                <button id="theme-hand-mobile" class="bg-slate-600/80 hover:bg-slate-500/80 text-slate-300 rounded-lg transition-all duration-200">
+                                    <i class="fas fa-pencil-alt mr-1"></i><span data-i18n="handDraw">Hand Draw</span>
+                                </button>
+                            </div>
+                            <div class="theme-group">
+                                <span class="text-slate-400 font-medium" data-i18n="background">Background:</span>
+                                <div class="bg-controls">
+                                    <button id="bg-white-mobile" class="bg-white bg-button-active" data-i18n-title="whiteBackground"></button>
+                                    <button id="bg-black-mobile" class="bg-slate-900" data-i18n-title="blackBackground"></button>
+                                    <button id="bg-transparent-mobile" data-i18n-title="transparentBackground" style="background: linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%); background-size: 4px 4px; background-position: 0 0, 0 2px, 2px -2px, -2px 0px;"></button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="mermaid-output-mobile" class="text-gray-400 bg-white transition-colors duration-300 rounded-lg border border-slate-600/50 overflow-hidden relative">
+                            <!-- Zoom Controls -->
+                            <div class="zoom-controls">
+                                <button class="zoom-btn" id="zoom-in-mobile" title="Zoom In">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                                <div class="zoom-level" id="zoom-level-mobile">100%</div>
+                                <button class="zoom-btn" id="zoom-out-mobile" title="Zoom Out">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <button class="zoom-btn" id="zoom-reset-mobile" title="Reset Zoom">
+                                    <i class="fas fa-expand-arrows-alt"></i>
+                                </button>
+                            </div>
+                            
+                            <!-- Diagram Viewport -->
+                            <div id="diagram-viewport-mobile" class="w-full h-full">
+                                <div id="diagram-container-mobile">
+                                    <div class="text-center p-4">
+                                        <i class="fas fa-image text-3xl mb-3 text-gray-600"></i>
+                                        <p class="text-sm" data-i18n="inputInstructions">Input Mermaid syntax in the editor</p>
+                                        <p class="text-xs mt-1 text-gray-500" data-i18n="previewHere">Your diagram will be converted to image here</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        <!-- Error Display -->
+        <div id="error-display" class="mt-4 p-4 bg-red-900/80 backdrop-blur-sm border border-red-700/50 rounded-xl hidden shadow-xl">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-exclamation-triangle text-red-400"></i>
+                <h4 class="text-red-400 font-semibold text-sm" data-i18n="syntaxError">Syntax Error</h4>
+            </div>
+            <p id="error-message" class="text-red-300 mt-2 text-xs font-mono"></p>
+        </div>
+    </main>
+
+    <!-- Mobile Toolbar -->
+    <div class="mobile-toolbar">
+        <button id="fullscreen-btn-mobile" class="bg-slate-700/80 hover:bg-slate-600/80 text-white transition-all duration-200 flex items-center justify-center">
+            <i class="fas fa-expand" id="fullscreen-icon-mobile"></i>
+        </button>
+        <button id="export-btn-mobile" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white transition-all duration-200 flex items-center justify-center">
+            <i class="fas fa-download mr-1"></i>
+            <span class="text-xs" data-i18n="exportPNG">PNG</span>
+        </button>
+        <button id="export-svg-btn-mobile" class="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white transition-all duration-200 flex items-center justify-center">
+            <i class="fas fa-file-code mr-1"></i>
+            <span class="text-xs" data-i18n="exportSVG">SVG</span>
+        </button>
+        <button id="copy-btn-mobile" class="bg-gradient-to-r from-violet-600 to-violet-700 hover:from-violet-700 hover:to-violet-800 text-white transition-all duration-200 flex items-center justify-center">
+            <i class="fas fa-copy mr-1"></i>
+            <span class="text-xs" data-i18n="copyImage">Copy</span>
+        </button>
+    </div>
+
+    <!-- Footer -->
+    <footer class="relative z-10 bg-slate-800/80 backdrop-blur-sm border-t border-slate-700/50 px-6 py-3 hidden lg:block" id="footer">
+        <div class="w-full flex items-center justify-center">
+            <div class="text-xs text-slate-400 text-center">
+                <span>Powered by OnSpace - AI App Builder</span> | 
+                <span data-i18n="supportAllCharts">Convert any Mermaid diagram to image instantly</span> |
+                <a href="https://mermaid.js.org/syntax/flowchart.html" target="_blank" class="hover:text-blue-400 transition-colors duration-200 ml-2">
+                    <i class="fas fa-book"></i> <span data-i18n="syntaxDocs">Syntax Docs</span>
+                </a> |
+                <a href="https://mermaid.js.org/syntax/examples.html" target="_blank" class="hover:text-blue-400 transition-colors duration-200 ml-2">
+                    <i class="fas fa-lightbulb"></i> <span data-i18n="moreExamples">More Examples</span>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Constants and Configuration
+        const CONFIG = {
+            STORAGE_KEYS: {
+                LANGUAGE: 'mermaid-language',
+                EDITOR_CODE: 'mermaid-editor-code',
+                EDITOR_TYPE: 'mermaid-editor-type',
+                SAVED_FILES: 'mermaid-saved-files'
+            },
+            DEFAULT_THEME: 'classic',
+            DEFAULT_BACKGROUND: 'white',
+            DEFAULT_ZOOM: 1,
+            ZOOM_LIMITS: { MIN: 0.1, MAX: 5 },
+            ZOOM_FACTOR: 1.2,
+            DEBOUNCE_DELAY: 500
+        };
+
+        // Multi-language support
+        const i18n = {
+            'en': {
+                appName: 'Mermaid to Image Converter',
+                appSubtitle: 'Convert Diagrams to Images',
+                free: 'FREE',
+                exportPNG: 'PNG',
+                exportSVG: 'SVG',
+                copyImage: 'Copy',
+                fullscreen: 'Fullscreen',
+                exitFullscreen: 'Exit Fullscreen',
+                selectScale: 'Select Scale:',
+                customSize: 'Custom Size...',
+                chartType: 'Chart Type:',
+                flowchart: 'Flowchart',
+                sequence: 'Sequence Diagram',
+                class: 'Class Diagram',
+                state: 'State Diagram',
+                gantt: 'Gantt Chart',
+                pie: 'Pie Chart',
+                erdiagram: 'ER Diagram',
+                journey: 'User Journey',
+                quadrant: 'Quadrant Chart',
+                requirement: 'Requirement Diagram',
+                mindmap: 'Mindmap',
+                timeline: 'Timeline',
+                c4context: 'C4 Context',
+                fileManager: 'File Manager',
+                newFile: 'New File',
+                saveFile: 'Save File',
+                currentEditing: 'Currently Editing',
+                savedFiles: 'Saved Files:',
+                noSavedFiles: 'No saved files yet',
+                clickToSave: 'Click "Save File" to save current code',
+                editingFile: 'Editing File',
+                unsaved: 'Unsaved',
+                codeEditor: 'Mermaid Code Editor',
+                livePreview: 'Live Preview',
+                theme: 'Theme:',
+                classic: 'Classic',
+                handDraw: 'Hand Draw',
+                background: 'Background:',
+                whiteBackground: 'White Background',
+                blackBackground: 'Black Background',
+                transparentBackground: 'Transparent Background',
+                ready: 'Ready',
+                rendering: 'Converting...',
+                error: 'Error',
+                syntaxError: 'Syntax Error',
+                inputInstructions: 'Input Mermaid syntax in the editor',
+                previewHere: 'Your diagram will be converted to image here',
+                poweredBy: 'Powered by OnSpace - AI App Builder',
+                supportAllCharts: 'Convert any Mermaid diagram to image instantly',
+                syntaxDocs: 'Syntax Docs',
+                moreExamples: 'More Examples',
+                noChart: 'No chart to export',
+                noChartCopy: 'No chart to copy',
+                inputCode: 'Please input code first',
+                inputFileName: 'Please enter file name:',
+                fileExists: 'File with same name exists, overwrite?',
+                confirmDelete: 'Are you sure to delete?',
+                saveFirst: 'There is unsaved code, save first?',
+                inputNewName: 'Please enter new file name:',
+                nameExists: 'File with same name already exists',
+                exporting: 'Exporting...',
+                exported: 'Exported',
+                copying: 'Copying...',
+                copied: 'Copied!',
+                copyFailed: 'Copy Failed',
+                saved: 'Saved',
+                autoSaving: 'Auto Saving...',
+                autoSaved: 'Auto Saved',
+                inputWidth: 'Please enter image width (pixels):',
+                inputHeight: 'Please enter image height (pixels):',
+                invalidNumber: 'Please enter valid number',
+                largeSizeWarning: 'Large size may affect performance. Continue?'
+            },
+            'zh-CN': {
+                appName: 'Mermaid 图表工具',
+                appSubtitle: '在线图表生成器',
+                free: '免费',
+                exportPNG: 'PNG',
+                exportSVG: 'SVG',
+                copyImage: '复制',
+                fullscreen: '全屏',
+                exitFullscreen: '退出全屏',
+                selectScale: '选择倍率:',
+                customSize: '自定义尺寸...',
+                chartType: '图表类型:',
+                flowchart: '流程图',
+                sequence: '序列图',
+                class: '类图',
+                state: '状态图',
+                gantt: '甘特图',
+                pie: '饼图',
+                erdiagram: '实体关系图',
+                journey: '用户旅程',
+                quadrant: '象限图',
+                requirement: '需求图',
+                mindmap: '思维导图',
+                timeline: '时间轴',
+                c4context: 'C4 上下文',
+                fileManager: '文件管理器',
+                newFile: '新建文件',
+                saveFile: '保存文件',
+                currentEditing: '当前编辑中',
+                savedFiles: '已保存的文件:',
+                noSavedFiles: '还没有保存的文件',
+                clickToSave: '点击"保存文件"来保存当前代码',
+                editingFile: '正在编辑',
+                unsaved: '未保存',
+                codeEditor: 'Mermaid 代码编辑器',
+                livePreview: '实时预览',
+                theme: '主题:',
+                classic: '经典',
+                handDraw: '手绘',
+                background: '背景:',
+                whiteBackground: '白色背景',
+                blackBackground: '黑色背景',
+                transparentBackground: '透明背景',
+                ready: '就绪',
+                rendering: '渲染中...',
+                error: '错误',
+                syntaxError: '语法错误',
+                inputInstructions: '在编辑器中输入 Mermaid 语法',
+                previewHere: '图表将在此处实时预览',
+                poweredBy: '由 OnSpace - AI App Builder 驱动',
+                supportAllCharts: '支持所有 Mermaid 图表类型',
+                syntaxDocs: '语法文档',
+                moreExamples: '更多示例',
+                noChart: '没有可导出的图表',
+                noChartCopy: '没有可复制的图表',
+                inputCode: '请先输入代码',
+                inputFileName: '请输入文件名称:',
+                fileExists: '已存在同名文件，是否覆盖?',
+                confirmDelete: '确定要删除吗?',
+                saveFirst: '当前有未保存的代码，是否先保存?',
+                inputNewName: '请输入新的文件名称:',
+                nameExists: '已存在同名文件',
+                exporting: '导出中...',
+                exported: '已导出',
+                copying: '复制中...',
+                copied: '已复制!',
+                copyFailed: '复制失败',
+                saved: '已保存',
+                autoSaving: '自动保存中...',
+                autoSaved: '自动保存',
+                inputWidth: '请输入图片宽度（像素）:',
+                inputHeight: '请输入图片高度（像素）:',
+                invalidNumber: '请输入有效的数字',
+                largeSizeWarning: '尺寸较大，可能会影响性能。是否继续?'
+            },
+            'ja': {
+                appName: 'Mermaid図表ツール',
+                appSubtitle: 'オンラインチャート作成',
+                free: '無料',
+                exportPNG: 'PNG',
+                exportSVG: 'SVG',
+                copyImage: 'コピー',
+                fullscreen: 'フルスクリーン',
+                exitFullscreen: 'フルスクリーン終了',
+                selectScale: 'スケールを選択:',
+                customSize: 'カスタムサイズ...',
+                chartType: 'チャートタイプ:',
+                flowchart: 'フローチャート',
+                sequence: 'シーケンス図',
+                class: 'クラス図',
+                state: '状態図',
+                gantt: 'ガントチャート',
+                pie: '円グラフ',
+                erdiagram: 'ER図',
+                journey: 'ユーザージャーニー',
+                quadrant: '四象限図',
+                requirement: '要求図',
+                mindmap: 'マインドマップ',
+                timeline: 'タイムライン',
+                c4context: 'C4コンテキスト',
+                fileManager: 'ファイルマネージャー',
+                newFile: '新規ファイル',
+                saveFile: 'ファイル保存',
+                currentEditing: '現在編集中',
+                savedFiles: '保存されたファイル:',
+                noSavedFiles: '保存されたファイルがありません',
+                clickToSave: '「ファイル保存」をクリックして現在のコードを保存してください',
+                editingFile: 'ファイル編集中',
+                unsaved: '未保存',
+                codeEditor: 'Mermaid コードエディター',
+                livePreview: 'ライブプレビュー',
+                theme: 'テーマ:',
+                classic: 'クラシック',
+                handDraw: '手書き',
+                background: '背景:',
+                whiteBackground: '白い背景',
+                blackBackground: '黒い背景',
+                transparentBackground: '透明な背景',
+                ready: '準備完了',
+                rendering: 'レンダリング中...',
+                error: 'エラー',
+                syntaxError: '構文エラー',
+                inputInstructions: 'エディターにMermaid構文を入力してください',
+                previewHere: 'チャートがここにリアルタイムでプレビューされます',
+                poweredBy: 'OnSpace - AI App Builder によって動作',
+                supportAllCharts: 'すべてのMermaidチャートタイプをサポート',
+                syntaxDocs: '構文ドキュメント',
+                moreExamples: 'その他の例',
+                noChart: 'エクスポートするチャートがありません',
+                noChartCopy: 'コピーするチャートがありません',
+                inputCode: '最初にコードを入力してください',
+                inputFileName: 'ファイル名を入力してください:',
+                fileExists: '同じ名前のファイルが存在します。上書きしますか？',
+                confirmDelete: '本当に削除しますか？',
+                saveFirst: '未保存のコードがあります。最初に保存しますか？',
+                inputNewName: '新しいファイル名を入力してください:',
+                nameExists: '同じ名前のファイルが既に存在します',
+                exporting: 'エクスポート中...',
+                exported: 'エクスポート完了',
+                copying: 'コピー中...',
+                copied: 'コピーしました!',
+                copyFailed: 'コピー失敗',
+                saved: '保存しました',
+                autoSaving: '自動保存中...',
+                autoSaved: '自動保存済み',
+                inputWidth: '画像の幅を入力してください（ピクセル）:',
+                inputHeight: '画像の高さを入力してください（ピクセル）:',
+                invalidNumber: '有効な数値を入力してください',
+                largeSizeWarning: 'サイズが大きいとパフォーマンスに影響する可能性があります。続行しますか？'
+            },
+            'de': {
+                appName: 'Mermaid Diagramm Tool',
+                appSubtitle: 'Online Chart Generator',
+                free: 'KOSTENLOS',
+                exportPNG: 'PNG',
+                exportSVG: 'SVG',
+                copyImage: 'Kopieren',
+                fullscreen: 'Vollbild',
+                exitFullscreen: 'Vollbild Beenden',
+                selectScale: 'Skalierung wählen:',
+                customSize: 'Benutzerdefinierte Größe...',
+                chartType: 'Diagramm Typ:',
+                flowchart: 'Flussdiagramm',
+                sequence: 'Sequenzdiagramm',
+                class: 'Klassendiagramm',
+                state: 'Zustandsdiagramm',
+                gantt: 'Gantt-Diagramm',
+                pie: 'Kreisdiagramm',
+                erdiagram: 'ER-Diagramm',
+                journey: 'User Journey',
+                quadrant: 'Quadrant-Diagramm',
+                requirement: 'Anforderungsdiagramm',
+                mindmap: 'Mindmap',
+                timeline: 'Zeitleiste',
+                c4context: 'C4 Kontext',
+                fileManager: 'Datei Manager',
+                newFile: 'Neue Datei',
+                saveFile: 'Datei Speichern',
+                currentEditing: 'Wird Bearbeitet',
+                savedFiles: 'Gespeicherte Dateien:',
+                noSavedFiles: 'Noch keine gespeicherten Dateien',
+                clickToSave: 'Klicken Sie auf "Datei Speichern" um den aktuellen Code zu speichern',
+                editingFile: 'Datei Bearbeiten',
+                unsaved: 'Nicht Gespeichert',
+                codeEditor: 'Mermaid Code Editor',
+                livePreview: 'Live Vorschau',
+                theme: 'Design:',
+                classic: 'Klassisch',
+                handDraw: 'Handzeichnung',
+                background: 'Hintergrund:',
+                whiteBackground: 'Weißer Hintergrund',
+                blackBackground: 'Schwarzer Hintergrund',
+                transparentBackground: 'Transparenter Hintergrund',
+                ready: 'Bereit',
+                rendering: 'Wird Gerendert...',
+                error: 'Fehler',
+                syntaxError: 'Syntax Fehler',
+                inputInstructions: 'Geben Sie Mermaid Syntax im Editor ein',
+                previewHere: 'Das Diagramm wird hier in Echtzeit angezeigt',
+                poweredBy: 'Betrieben von OnSpace - AI App Builder',
+                supportAllCharts: 'Unterstützt alle Mermaid Diagramm Typen',
+                syntaxDocs: 'Syntax Dokumentation',
+                moreExamples: 'Weitere Beispiele',
+                noChart: 'Kein Diagramm zum Exportieren',
+                noChartCopy: 'Kein Diagramm zum Kopieren',
+                inputCode: 'Bitte geben Sie zuerst Code ein',
+                inputFileName: 'Bitte geben Sie einen Dateinamen ein:',
+                fileExists: 'Eine Datei mit demselben Namen existiert bereits, überschreiben?',
+                confirmDelete: 'Sind Sie sicher, dass Sie löschen möchten?',
+                saveFirst: 'Es gibt ungespeicherten Code, zuerst speichern?',
+                inputNewName: 'Bitte geben Sie einen neuen Dateinamen ein:',
+                nameExists: 'Eine Datei mit demselben Namen existiert bereits',
+                exporting: 'Exportiert...',
+                exported: 'Exportiert',
+                copying: 'Kopiert...',
+                copied: 'Kopiert!',
+                copyFailed: 'Kopieren Fehlgeschlagen',
+                saved: 'Gespeichert',
+                autoSaving: 'Automatisch Speichern...',
+                autoSaved: 'Automatisch Gespeichert',
+                inputWidth: 'Bitte geben Sie die Bildbreite ein (Pixel):',
+                inputHeight: 'Bitte geben Sie die Bildhöhe ein (Pixel):',
+                invalidNumber: 'Bitte geben Sie eine gültige Zahl ein',
+                largeSizeWarning: 'Große Größe kann die Leistung beeinträchtigen. Fortfahren?'
+            },
+            'ko': {
+                appName: 'Mermaid 다이어그램 도구',
+                appSubtitle: '온라인 차트 생성기',
+                free: '무료',
+                exportPNG: 'PNG',
+                exportSVG: 'SVG',
+                copyImage: '복사',
+                fullscreen: '전체화면',
+                exitFullscreen: '전체화면 종료',
+                selectScale: '크기 선택:',
+                customSize: '사용자 정의 크기...',
+                chartType: '차트 유형:',
+                flowchart: '플로우차트',
+                sequence: '시퀀스 다이어그램',
+                class: '클래스 다이어그램',
+                state: '상태 다이어그램',
+                gantt: '간트 차트',
+                pie: '원형 차트',
+                erdiagram: 'ER 다이어그램',
+                journey: '사용자 여정',
+                quadrant: '사분면 차트',
+                requirement: '요구사항 다이어그램',
+                mindmap: '마인드맵',
+                timeline: '타임라인',
+                c4context: 'C4 컨텍스트',
+                fileManager: '파일 관리자',
+                newFile: '새 파일',
+                saveFile: '파일 저장',
+                currentEditing: '현재 편집 중',
+                savedFiles: '저장된 파일:',
+                noSavedFiles: '저장된 파일이 없습니다',
+                clickToSave: '"파일 저장"을 클릭하여 현재 코드를 저장하세요',
+                editingFile: '파일 편집',
+                unsaved: '저장되지 않음',
+                codeEditor: 'Mermaid 코드 편집기',
+                livePreview: '실시간 미리보기',
+                theme: '테마:',
+                classic: '클래식',
+                handDraw: '손그림',
+                background: '배경:',
+                whiteBackground: '흰색 배경',
+                blackBackground: '검은색 배경',
+                transparentBackground: '투명 배경',
+                ready: '준비됨',
+                rendering: '렌더링 중...',
+                error: '오류',
+                syntaxError: '문법 오류',
+                inputInstructions: '편집기에 Mermaid 문법을 입력하세요',
+                previewHere: '차트가 여기에 실시간으로 미리보기됩니다',
+                poweredBy: 'OnSpace - AI App Builder 제공',
+                supportAllCharts: '모든 Mermaid 차트 유형 지원',
+                syntaxDocs: '문법 문서',
+                moreExamples: '더 많은 예제',
+                noChart: '내보낼 차트가 없습니다',
+                noChartCopy: '복사할 차트가 없습니다',
+                inputCode: '먼저 코드를 입력해주세요',
+                inputFileName: '파일 이름을 입력하세요:',
+                fileExists: '같은 이름의 파일이 존재합니다. 덮어쓰시겠습니까?',
+                confirmDelete: '정말 삭제하시겠습니까?',
+                saveFirst: '저장되지 않은 코드가 있습니다. 먼저 저장하시겠습니까?',
+                inputNewName: '새 파일 이름을 입력하세요:',
+                nameExists: '같은 이름의 파일이 이미 존재합니다',
+                exporting: '내보내는 중...',
+                exported: '내보내기 완료',
+                copying: '복사 중...',
+                copied: '복사됨!',
+                copyFailed: '복사 실패',
+                saved: '저장됨',
+                autoSaving: '자동 저장 중...',
+                autoSaved: '자동 저장됨',
+                inputWidth: '이미지 너비를 입력하세요 (픽셀):',
+                inputHeight: '이미지 높이를 입력하세요 (픽셀):',
+                invalidNumber: '유효한 숫자를 입력하세요',
+                largeSizeWarning: '큰 크기는 성능에 영향을 줄 수 있습니다. 계속하시겠습니까?'
+            },
+            'id': {
+                appName: 'Alat Diagram Mermaid',
+                appSubtitle: 'Generator Chart Online',
+                free: 'GRATIS',
+                exportPNG: 'PNG',
+                exportSVG: 'SVG',
+                copyImage: 'Salin',
+                fullscreen: 'Layar Penuh',
+                exitFullscreen: 'Keluar Layar Penuh',
+                selectScale: 'Pilih Skala:',
+                customSize: 'Ukuran Kustom...',
+                chartType: 'Tipe Chart:',
+                flowchart: 'Flowchart',
+                sequence: 'Diagram Sequence',
+                class: 'Diagram Class',
+                state: 'Diagram State',
+                gantt: 'Chart Gantt',
+                pie: 'Chart Pie',
+                erdiagram: 'Diagram ER',
+                journey: 'User Journey',
+                quadrant: 'Chart Quadrant',
+                requirement: 'Diagram Requirement',
+                mindmap: 'Mindmap',
+                timeline: 'Timeline',
+                c4context: 'C4 Context',
+                fileManager: 'Manajer File',
+                newFile: 'File Baru',
+                saveFile: 'Simpan File',
+                currentEditing: 'Sedang Diedit',
+                savedFiles: 'File Tersimpan:',
+                noSavedFiles: 'Belum ada file tersimpan',
+                clickToSave: 'Klik "Simpan File" untuk menyimpan kode saat ini',
+                editingFile: 'Mengedit File',
+                unsaved: 'Belum Disimpan',
+                codeEditor: 'Editor Kode Mermaid',
+                livePreview: 'Preview Langsung',
+                theme: 'Tema:',
+                classic: 'Klasik',
+                handDraw: 'Gambar Tangan',
+                background: 'Latar Belakang:',
+                whiteBackground: 'Latar Belakang Putih',
+                blackBackground: 'Latar Belakang Hitam',
+                transparentBackground: 'Latar Belakang Transparan',
+                ready: 'Siap',
+                rendering: 'Merender...',
+                error: 'Error',
+                syntaxError: 'Error Sintaks',
+                inputInstructions: 'Masukkan sintaks Mermaid di editor',
+                previewHere: 'Chart akan dipratinjau di sini secara real-time',
+                poweredBy: 'Didukung oleh OnSpace - AI App Builder',
+                supportAllCharts: 'Mendukung semua tipe chart Mermaid',
+                syntaxDocs: 'Dokumentasi Sintaks',
+                moreExamples: 'Contoh Lainnya',
+                noChart: 'Tidak ada chart untuk diekspor',
+                noChartCopy: 'Tidak ada chart untuk disalin',
+                inputCode: 'Silakan masukkan kode terlebih dahulu',
+                inputFileName: 'Silakan masukkan nama file:',
+                fileExists: 'File dengan nama sama sudah ada, timpa?',
+                confirmDelete: 'Yakin ingin menghapus?',
+                saveFirst: 'Ada kode yang belum disimpan, simpan dulu?',
+                inputNewName: 'Silakan masukkan nama file baru:',
+                nameExists: 'File dengan nama sama sudah ada',
+                exporting: 'Mengekspor...',
+                exported: 'Diekspor',
+                copying: 'Menyalin...',
+                copied: 'Disalin!',
+                copyFailed: 'Gagal Menyalin',
+                saved: 'Disimpan',
+                autoSaving: 'Otomatis Menyimpan...',
+                autoSaved: 'Otomatis Tersimpan',
+                inputWidth: 'Silakan masukkan lebar gambar (pixel):',
+                inputHeight: 'Silakan masukkan tinggi gambar (pixel):',
+                invalidNumber: 'Silakan masukkan angka yang valid',
+                largeSizeWarning: 'Ukuran besar dapat mempengaruhi kinerja. Lanjutkan?'
+            },
+            'fr': {
+                appName: 'Outil de Diagramme Mermaid',
+                appSubtitle: 'Générateur de Graphique en Ligne',
+                free: 'GRATUIT',
+                exportPNG: 'PNG',
+                exportSVG: 'SVG',
+                copyImage: 'Copier',
+                fullscreen: 'Plein Écran',
+                exitFullscreen: 'Quitter Plein Écran',
+                selectScale: 'Sélectionner Échelle:',
+                customSize: 'Taille Personnalisée...',
+                chartType: 'Type de Graphique:',
+                flowchart: 'Organigramme',
+                sequence: 'Diagramme de Séquence',
+                class: 'Diagramme de Classe',
+                state: 'Diagramme d\'État',
+                gantt: 'Diagramme de Gantt',
+                pie: 'Graphique Circulaire',
+                erdiagram: 'Diagramme ER',
+                journey: 'Parcours Utilisateur',
+                quadrant: 'Graphique Quadrant',
+                requirement: 'Diagramme d\'Exigence',
+                mindmap: 'Carte Mentale',
+                timeline: 'Chronologie',
+                c4context: 'Contexte C4',
+                fileManager: 'Gestionnaire de Fichiers',
+                newFile: 'Nouveau Fichier',
+                saveFile: 'Enregistrer Fichier',
+                currentEditing: 'En Cours d\'Édition',
+                savedFiles: 'Fichiers Enregistrés:',
+                noSavedFiles: 'Aucun fichier enregistré pour le moment',
+                clickToSave: 'Cliquez sur "Enregistrer Fichier" pour sauvegarder le code actuel',
+                editingFile: 'Édition de Fichier',
+                unsaved: 'Non Enregistré',
+                codeEditor: 'Éditeur de Code Mermaid',
+                livePreview: 'Aperçu en Direct',
+                theme: 'Thème:',
+                classic: 'Classique',
+                handDraw: 'Dessin à Main',
+                background: 'Arrière-plan:',
+                whiteBackground: 'Arrière-plan Blanc',
+                blackBackground: 'Arrière-plan Noir',
+                transparentBackground: 'Arrière-plan Transparent',
+                ready: 'Prêt',
+                rendering: 'Rendu en cours...',
+                error: 'Erreur',
+                syntaxError: 'Erreur de Syntaxe',
+                inputInstructions: 'Saisissez la syntaxe Mermaid dans l\'éditeur',
+                previewHere: 'Le graphique sera prévisualisé ici en temps réel',
+                poweredBy: 'Propulsé par OnSpace - AI App Builder',
+                supportAllCharts: 'Supporte tous les types de diagrammes Mermaid',
+                syntaxDocs: 'Documentation Syntaxe',
+                moreExamples: 'Plus d\'Exemples',
+                noChart: 'Aucun graphique à exporter',
+                noChartCopy: 'Aucun graphique à copier',
+                inputCode: 'Veuillez d\'abord saisir le code',
+                inputFileName: 'Veuillez saisir le nom du fichier:',
+                fileExists: 'Un fichier avec le même nom existe, écraser?',
+                confirmDelete: 'Êtes-vous sûr de vouloir supprimer?',
+                saveFirst: 'Il y a du code non enregistré, enregistrer d\'abord?',
+                inputNewName: 'Veuillez saisir le nouveau nom de fichier:',
+                nameExists: 'Un fichier avec le même nom existe déjà',
+                exporting: 'Exportation...',
+                exported: 'Exporté',
+                copying: 'Copie...',
+                copied: 'Copié!',
+                copyFailed: 'Échec de la Copie',
+                saved: 'Enregistré',
+                autoSaving: 'Sauvegarde Automatique...',
+                autoSaved: 'Sauvegarde Automatique',
+                inputWidth: 'Veuillez saisir la largeur de l\'image (pixels):',
+                inputHeight: 'Veuillez saisir la hauteur de l\'image (pixels):',
+                invalidNumber: 'Veuillez saisir un nombre valide',
+                largeSizeWarning: 'Une grande taille peut affecter les performances. Continuer?'
+            }
+        };
+
+        // Example code templates
+        const examples = {
+            flowchart: `flowchart TD
+    A[Start] --> B{Logged in?}
+    B -->|Yes| C[Show Dashboard]
+    B -->|No| D[Redirect to Login]
+    D --> E[User Input Credentials]
+    E --> F{Valid?}
+    F -->|Yes| C
+    F -->|No| G[Show Error Message]
+    G --> E
+    C --> H[End]`,
+            
+            sequence: `sequenceDiagram
+    participant User
+    participant Client
+    participant Server
+    participant Database
+    
+    User->>Client: Login Request
+    Client->>Server: Send Credentials
+    Server->>Database: Validate User
+    Database-->>Server: Return Result
+    Server-->>Client: Login Status
+    Client-->>User: Show Result`,
+            
+            class: `classDiagram
+    class User {
+        -String username
+        -String email
+        -String password
+        +login()
+        +logout()
+        +updateProfile()
+    }
+    
+    class Admin {
+        -List~Permission~ permissions
+        +manageUsers()
+        +viewAnalytics()
+    }
+    
+    class Database {
+        +save(Object data)
+        +find(String id)
+        +delete(String id)
+    }
+    
+    User <|-- Admin
+    User --> Database : uses
+    Admin --> Database : manages`,
+            
+            state: `stateDiagram-v2
+    [*] --> Idle
+    Idle --> Running : Start
+    Running --> Paused : Pause Command
+    Paused --> Running : Resume Command
+    Running --> Error : Exception Occurs
+    Error --> Running : Retry
+    Running --> [*] : Stop`,
+            
+            gantt: `gantt
+    title Project Development Plan
+    dateFormat  YYYY-MM-DD
+    section Requirements
+    Requirement Gathering    :done,    req1, 2024-01-01,2024-01-05
+    Requirement Analysis     :done,    req2, after req1, 5d
+    section Design
+    System Design           :active,  des1, 2024-01-12, 3d
+    UI Design              :         des2, after des1, 5d
+    section Development
+    Backend Development     :         dev1, 2024-01-20, 10d
+    Frontend Development    :         dev2, after des2, 8d
+    section Testing
+    System Testing         :         test1, after dev1, 5d
+    Deployment            :         deploy1, after test1, 2d`,
+            
+            pie: `pie title Device Distribution
+    "Mobile" : 45
+    "Desktop" : 35
+    "Tablet" : 15
+    "Others" : 5`,
+            
+            erdiagram: `erDiagram
+    USER ||--o{ ORDER : places
+    USER {
+        int id PK
+        string name
+        string email
+        date created_at
+    }
+    ORDER ||--|{ LINE_ITEM : contains
+    ORDER {
+        int id PK
+        int user_id FK
+        date order_date
+        string status
+    }
+    PRODUCT ||--o{ LINE_ITEM : includes
+    PRODUCT {
+        int id PK
+        string name
+        decimal price
+        int stock
+    }
+    LINE_ITEM {
+        int order_id FK
+        int product_id FK
+        int quantity
+        decimal unit_price
+    }`,
+            
+            journey: `journey
+    title My Working Day
+    section Go to work
+      Make tea: 5: Me
+      Go upstairs: 3: Me
+      Do work: 1: Me, Cat
+    section Go home
+      Go downstairs: 5: Me
+      Sit down: 5: Me`,
+            
+            quadrant: `quadrantChart
+    title Reach and influence
+    x-axis Low Reach --> High Reach
+    y-axis Low Influence --> High Influence
+    quadrant-1 We should expand
+    quadrant-2 Need to promote
+    quadrant-3 Re-evaluate
+    quadrant-4 May be improved
+    Campaign A: [0.3, 0.6]
+    Campaign B: [0.45, 0.23]
+    Campaign C: [0.57, 0.69]
+    Campaign D: [0.78, 0.34]
+    Campaign E: [0.40, 0.34]`,
+            
+            requirement: `requirementDiagram
+    requirement test_req {
+    id: 1
+    text: the test text.
+    risk: high
+    verifymethod: test
+    }
+    
+    element test_entity {
+    type: simulation
+    }
+    
+    test_entity - satisfies -> test_req`,
+            
+            mindmap: `mindmap
+  root((mindmap))
+    Origins
+      Long history
+      ::icon(fa fa-book)
+      Popularisation
+        British popular psychology author Tony Buzan
+    Research
+      On effectiveness<br/>and features
+      On Automatic creation
+        Uses
+            Creative techniques
+            Strategic planning
+            Argument mapping
+    Tools
+      Pen and paper
+      Mermaid`,
+            
+            timeline: `timeline
+    title History of Social Media Platform
+    2002 : LinkedIn
+    2004 : Facebook
+         : Google
+    2005 : Youtube
+    2006 : Twitter
+    2007 : Tumblr
+    2008 : Instagram
+    2010 : Pinterest
+    2011 : Snapchat
+    2012 : TikTok
+    2016 : Clubhouse`,
+            
+            c4context: `C4Context
+    title System Context diagram for Internet Banking System
+    Enterprise_Boundary(b0, "BankBoundary0") {
+        Person(customerA, "Banking Customer A", "A customer of the bank, with personal bank accounts.")
+        Person(customerB, "Banking Customer B")
+        Person_Ext(customerC, "Banking Customer C", "desc")
+        
+        Person(customerD, "Banking Customer D", "A customer of the bank, <br/> with personal bank accounts.")
+        
+        System(SystemAA, "Internet Banking System", "Allows customers to view information about their bank accounts, and make payments.")
+        
+        Enterprise_Boundary(b1, "BankBoundary") {
+            SystemDb_Ext(SystemE, "Mainframe Banking System", "Stores all of the core banking information about customers, accounts, transactions, etc.")
+            System_Boundary(b2, "BankBoundary2") {
+                System(SystemA, "Banking System A")
+                System(SystemB, "Banking System B", "A system of the bank, with personal bank accounts. next line.")
+            }
+            System_Ext(SystemC, "E-mail system", "The internal Microsoft Exchange e-mail system.")
+            SystemDb(SystemD, "Banking System D Database", "A system of the bank, with personal bank accounts.")
+            
+            Boundary(b3, "BankBoundary3", "boundary") {
+                SystemQueue(SystemF, "Banking System F Queue", "A system of the bank.")
+                SystemQueue_Ext(SystemG, "Banking System G Queue", "A system of the bank, with personal bank accounts.")
+            }
+        }
+    }
+    
+    BiRel(customerA, SystemAA, "Uses")
+    BiRel(SystemAA, SystemE, "Uses")
+    Rel(SystemAA, SystemC, "Sends e-mails", "SMTP")
+    Rel(SystemC, customerA, "Sends e-mails to")
+    
+    UpdateElementStyle(customerA, $fontColor="red", $bgColor="grey", $borderColor="red")
+    UpdateRelStyle(customerA, SystemAA, $textColor="blue", $lineColor="blue", $offsetX="5")
+    UpdateRelStyle(SystemAA, SystemE, $textColor="blue", $lineColor="blue", $offsetY="-10")
+    UpdateRelStyle(SystemAA, SystemC, $textColor="blue", $lineColor="blue", $offsetY="-40", $offsetX="-50")
+    UpdateRelStyle(SystemC, customerA, $textColor="red", $lineColor="red", $offsetX="-50", $offsetY="20")`
+        };
+
+        // Global variables
+        let editor;
+        let isRendering = false;
+        let currentLanguage = 'en';
+        let currentZoom = CONFIG.DEFAULT_ZOOM;
+        let panX = 0;
+        let panY = 0;
+        let isDragging = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        let startPanX = 0;
+        let startPanY = 0;
+        let currentBackground = CONFIG.DEFAULT_BACKGROUND;
+        let currentTheme = CONFIG.DEFAULT_THEME;
+        let currentFileId = null;
+        let files = [];
+        let isFullscreen = false;
+        let isMobile = false;
+        let mobileEditorInitialized = false;
+        let desktopEditorInitialized = false;
+        let autoSaveInterval = null;
+        let lastSavedCode = '';
+        let isAutoSaving = false;
+
+        // Utility functions
+        const debounce = (func, wait) => {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        };
+
+        const escapeHtml = (text) => {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        };
+
+        const generateFileId = () => Date.now().toString() + Math.random().toString(36).substr(2, 9);
+
+        const checkMobile = () => {
+            isMobile = window.innerWidth < 1024;
+            return isMobile;
+        };
+
+        // Language support functions
+        const t = (key) => i18n[currentLanguage][key] || i18n['en'][key] || key;
+
+        const updatePageText = () => {
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                const text = t(key);
+                if (text) element.textContent = text;
+            });
+
+            document.querySelectorAll('[data-i18n-title]').forEach(element => {
+                const key = element.getAttribute('data-i18n-title');
+                const text = t(key);
+                if (text) element.setAttribute('title', text);
+            });
+
+            const languageNames = {
+                'en': 'English',
+                'zh-CN': '中文简体',
+                'ja': '日本語',
+                'de': 'Deutsch',
+                'ko': '한국어',
+                'id': 'Bahasa Indonesia',
+                'fr': 'Français'
+            };
+            document.getElementById('current-language').textContent = languageNames[currentLanguage];
+
+            document.querySelectorAll('#chart-type option, #chart-type-mobile option').forEach(option => {
+                const key = option.getAttribute('data-i18n');
+                if (key) option.textContent = t(key);
+            });
+        };
+
+        const switchLanguage = (lang) => {
+            currentLanguage = lang;
+            localStorage.setItem(CONFIG.STORAGE_KEYS.LANGUAGE, lang);
+            updatePageText();
+            
+            if (editor && editor.getValue().trim() === '') {
+                loadExample();
+            }
+        };
+
+        const loadSavedLanguage = () => {
+            const savedLang = localStorage.getItem(CONFIG.STORAGE_KEYS.LANGUAGE);
+            if (savedLang && i18n[savedLang]) {
+                currentLanguage = savedLang;
+                updatePageText();
+            }
+        };
+
+        // Mobile section toggle
+        const toggleSection = (sectionId) => {
+            const section = document.getElementById(sectionId);
+            const toggle = section.querySelector('.section-toggle');
+            const isExpanded = section.classList.contains('expanded');
+            
+            if (isExpanded) {
+                section.classList.remove('expanded');
+                section.classList.add('collapsed');
+                toggle.classList.remove('expanded');
+            } else {
+                section.classList.remove('collapsed');
+                section.classList.add('expanded');
+                toggle.classList.add('expanded');
+            }
+        };
+
+        // Make toggleSection global
+        window.toggleSection = toggleSection;
+
+        // Fullscreen functions
+        const toggleFullscreen = () => {
+            const mainContent = document.getElementById('main-content');
+            const fullscreenBtns = [document.getElementById('fullscreen-btn'), document.getElementById('fullscreen-btn-mobile')];
+            const fullscreenIcons = [document.getElementById('fullscreen-icon'), document.getElementById('fullscreen-icon-mobile')];
+            const fullscreenTexts = fullscreenBtns.map(btn => btn?.querySelector('span')).filter(Boolean);
+            
+            if (!isFullscreen) {
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                } else if (document.documentElement.webkitRequestFullscreen) {
+                    document.documentElement.webkitRequestFullscreen();
+                } else if (document.documentElement.msRequestFullscreen) {
+                    document.documentElement.msRequestFullscreen();
+                }
+                
+                mainContent.classList.add('fullscreen-mode');
+                fullscreenIcons.forEach(icon => {
+                    if (icon) icon.className = 'fas fa-compress text-xs';
+                });
+                fullscreenTexts.forEach(text => {
+                    text.textContent = t('exitFullscreen');
+                });
+                isFullscreen = true;
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+                
+                mainContent.classList.remove('fullscreen-mode');
+                fullscreenIcons.forEach(icon => {
+                    if (icon) icon.className = 'fas fa-expand text-xs';
+                });
+                fullscreenTexts.forEach(text => {
+                    text.textContent = t('fullscreen');
+                });
+                isFullscreen = false;
+            }
+        };
+
+        // Monaco Editor functions
+        const initEditor = () => {
+            require.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs' } });
+            require(['vs/editor/editor.main'], function () {
+                // Initialize appropriate editor based on screen size
+                if (isMobile && !mobileEditorInitialized) {
+                    initMobileEditor();
+                } else if (!isMobile && !desktopEditorInitialized) {
+                    initDesktopEditor();
+                }
+            });
+        };
+
+        const initDesktopEditor = () => {
+            const container = document.getElementById('editor-container');
+            if (!container || desktopEditorInitialized) return;
+            
+            if (editor) {
+                editor.dispose();
+            }
+            
+            editor = monaco.editor.create(container, {
+                value: examples.flowchart,
+                language: 'text',
+                theme: 'vs-dark',
+                fontSize: 14,
+                wordWrap: 'on',
+                minimap: { enabled: true },
+                scrollBeyondLastLine: false,
+                automaticLayout: true
+            });
+
+            setupEditorEvents();
+            desktopEditorInitialized = true;
+            mobileEditorInitialized = false;
+        };
+
+        const initMobileEditor = () => {
+            const container = document.getElementById('editor-container-mobile');
+            if (!container || mobileEditorInitialized) return;
+            
+            if (editor) {
+                editor.dispose();
+            }
+            
+            editor = monaco.editor.create(container, {
+                value: examples.flowchart,
+                language: 'text',
+                theme: 'vs-dark',
+                fontSize: 12,
+                wordWrap: 'on',
+                minimap: { enabled: false },
+                scrollBeyondLastLine: false,
+                automaticLayout: true,
+                glyphMargin: false,
+                folding: false,
+                lineNumbers: 'on',
+                lineDecorationsWidth: 0,
+                lineNumbersMinChars: 2,
+                overviewRulerBorder: false,
+                overviewRulerLanes: 0,
+                hideCursorInOverviewRuler: true,
+                scrollbar: {
+                    vertical: 'hidden',
+                    horizontal: 'hidden'
+                }
+            });
+
+            setupEditorEvents();
+            mobileEditorInitialized = true;
+            desktopEditorInitialized = false;
+        };
+
+        const setupEditorEvents = () => {
+            if (!editor) return;
+            
+            editor.onDidChangeModelContent(debounce(() => {
+                if (editor && editor.deltaDecorations) {
+                    editor.deltaDecorations(editor.getModel().getAllDecorations().map(d => d.id), []);
+                }
+                renderDiagram();
+                saveCode();
+                hideError();
+                updateUndoRedoButtons();
+                
+                // Mark that user has edited
+                userHasEdited = true;
+                lastEditTime = Date.now();
+            }, CONFIG.DEBOUNCE_DELAY));
+            
+            // Auto-save on blur
+            editor.onDidBlurEditorWidget(() => {
+                if (userHasEdited) {
+                    performAutoSave();
+                }
+            });
+            
+            loadSavedCode();
+            renderDiagram();
+            updateUndoRedoButtons();
+            startAutoSave();
+        };
+
+        // Undo/Redo functions
+        const updateUndoRedoButtons = () => {
+            if (!editor) return;
+            
+            const undoBtns = [document.getElementById('undo-btn'), document.getElementById('undo-btn-mobile')];
+            const redoBtns = [document.getElementById('redo-btn'), document.getElementById('redo-btn-mobile')];
+            
+            const model = editor.getModel();
+            if (model) {
+                const canUndo = model.canUndo();
+                const canRedo = model.canRedo();
+                
+                undoBtns.forEach(btn => {
+                    if (btn) btn.disabled = !canUndo;
+                });
+                redoBtns.forEach(btn => {
+                    if (btn) btn.disabled = !canRedo;
+                });
+            }
+        };
+
+        const performUndo = () => {
+            if (editor && editor.getModel().canUndo()) {
+                editor.trigger('keyboard', 'undo', null);
+                updateUndoRedoButtons();
+            }
+        };
+
+        const performRedo = () => {
+            if (editor && editor.getModel().canRedo()) {
+                editor.trigger('keyboard', 'redo', null);
+                updateUndoRedoButtons();
+            }
+        };
+
+        // Code management functions
+        const saveCode = () => {
+            if (editor) {
+                const code = editor.getValue();
+                const chartType = (document.getElementById('chart-type') || document.getElementById('chart-type-mobile')).value;
+                localStorage.setItem(CONFIG.STORAGE_KEYS.EDITOR_CODE, code);
+                localStorage.setItem(CONFIG.STORAGE_KEYS.EDITOR_TYPE, chartType);
+            }
+        };
+
+        const loadSavedCode = () => {
+            const savedCode = localStorage.getItem(CONFIG.STORAGE_KEYS.EDITOR_CODE);
+            const savedType = localStorage.getItem(CONFIG.STORAGE_KEYS.EDITOR_TYPE);
+            
+            if (savedCode && savedCode.trim()) {
+                editor.setValue(savedCode);
+                if (savedType) {
+                    [document.getElementById('chart-type'), document.getElementById('chart-type-mobile')].forEach(select => {
+                        if (select) select.value = savedType;
+                    });
+                }
+            } else {
+                editor.setValue(examples.flowchart);
+            }
+        };
+
+        const loadExample = () => {
+            const chartType = (document.getElementById('chart-type') || document.getElementById('chart-type-mobile')).value;
+            const exampleCode = examples[chartType];
+            if (editor && exampleCode) {
+                editor.setValue(exampleCode);
+                saveCode();
+            }
+        };
+
+        // File management functions
+        const getSavedFiles = () => {
+            const saved = localStorage.getItem(CONFIG.STORAGE_KEYS.SAVED_FILES);
+            return saved ? JSON.parse(saved) : [];
+        };
+
+        const setSavedFiles = (filesList) => {
+            localStorage.setItem(CONFIG.STORAGE_KEYS.SAVED_FILES, JSON.stringify(filesList));
+        };
+
+        const saveCurrentFile = (isAutoSave = false) => {
+            if (!editor) return;
+            
+            const code = editor.getValue().trim();
+            if (!code) {
+                if (!isAutoSave) alert(t('inputCode'));
+                return;
+            }
+            
+            const saveBtns = [document.getElementById('save-file-btn'), document.getElementById('save-file-btn-mobile')];
+            
+            if (currentFileId) {
+                // Update existing file
+                files = getSavedFiles();
+                const fileIndex = files.findIndex(f => f.id === currentFileId);
+                if (fileIndex >= 0) {
+                    const chartType = (document.getElementById('chart-type') || document.getElementById('chart-type-mobile')).value;
+                    files[fileIndex].code = code;
+                    files[fileIndex].chartType = chartType;
+                    files[fileIndex].updatedAt = new Date().toISOString();
+                    
+                    setSavedFiles(files);
+                    updateFilesList();
+                    
+                    if (isAutoSave) {
+                        saveBtns.forEach(btn => {
+                            if (btn) {
+                                const originalContent = btn.innerHTML;
+                                btn.innerHTML = '<i class="fas fa-check mr-1"></i>' + t('autoSaved');
+                                btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                                setTimeout(() => {
+                                    btn.innerHTML = originalContent;
+                                    btn.style.background = '';
+                                }, 2000);
+                            }
+                        });
+                    } else {
+                        saveBtns.forEach(btn => {
+                            if (btn) {
+                                const originalContent = btn.innerHTML;
+                                btn.innerHTML = '<i class="fas fa-check mr-1"></i>' + t('saved');
+                                setTimeout(() => {
+                                    btn.innerHTML = originalContent;
+                                }, 2000);
+                            }
+                        });
+                    }
+                    return;
+                }
+            }
+            
+            // For new files or auto-save without filename
+            if (isAutoSave) {
+                // Store in localStorage temporarily
+                localStorage.setItem('temp-unsaved-code', code);
+                const chartType = (document.getElementById('chart-type') || document.getElementById('chart-type-mobile')).value;
+                localStorage.setItem('temp-unsaved-type', chartType);
+                return;
+            }
+            
+            const name = prompt(t('inputFileName'));
+            if (!name || !name.trim()) return;
+            
+            const chartType = (document.getElementById('chart-type') || document.getElementById('chart-type-mobile')).value;
+            files = getSavedFiles();
+            
+            const existingIndex = files.findIndex(item => item.name === name.trim());
+            
+            const newFile = {
+                id: generateFileId(),
+                name: name.trim(),
+                code: code,
+                chartType: chartType,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            
+            if (existingIndex >= 0) {
+                if (confirm(t('fileExists'))) {
+                    newFile.id = files[existingIndex].id;
+                    newFile.createdAt = files[existingIndex].createdAt;
+                    files[existingIndex] = newFile;
+                } else {
+                    return;
+                }
+            } else {
+                files.push(newFile);
+            }
+            
+            setSavedFiles(files);
+            updateFilesList();
+            
+            currentFileId = newFile.id;
+            updateCurrentFileIndicator();
+            
+            // Clear temp storage
+            localStorage.removeItem('temp-unsaved-code');
+            localStorage.removeItem('temp-unsaved-type');
+            
+            saveBtns.forEach(btn => {
+                if (btn) {
+                    const originalContent = btn.innerHTML;
+                    btn.innerHTML = '<i class="fas fa-check mr-1"></i>' + t('saved');
+                    setTimeout(() => {
+                        btn.innerHTML = originalContent;
+                    }, 2000);
+                }
+            });
+        };
+
+        const loadFileById = (id) => {
+            files = getSavedFiles();
+            const file = files.find(item => item.id === id);
+            
+            if (file && editor) {
+                editor.setValue(file.code);
+                [document.getElementById('chart-type'), document.getElementById('chart-type-mobile')].forEach(select => {
+                    if (select) select.value = file.chartType;
+                });
+                currentFileId = id;
+                lastSavedCode = file.code;
+                userHasEdited = false;
+                
+                saveCode();
+                updateCurrentFileIndicator();
+                updateFilesList();
+            }
+        };
+
+        const deleteFile = (id) => {
+            const file = files.find(f => f.id === id);
+            if (!file) return;
+            
+            if (!confirm(t('confirmDelete'))) return;
+            
+            files = getSavedFiles();
+            const filteredFiles = files.filter(item => item.id !== id);
+            setSavedFiles(filteredFiles);
+            
+            if (currentFileId === id) {
+                currentFileId = null;
+                updateCurrentFileIndicator();
+            }
+            
+            updateFilesList();
+        };
+
+        const renameFile = (id) => {
+            files = getSavedFiles();
+            const file = files.find(item => item.id === id);
+            if (!file) return;
+            
+            const newName = prompt(t('inputNewName'), file.name);
+            if (!newName || !newName.trim() || newName.trim() === file.name) return;
+            
+            const existingFile = files.find(item => item.name === newName.trim() && item.id !== id);
+            if (existingFile) {
+                alert(t('nameExists'));
+                return;
+            }
+            
+            file.name = newName.trim();
+            file.updatedAt = new Date().toISOString();
+            
+            setSavedFiles(files);
+            updateFilesList();
+            updateCurrentFileIndicator();
+        };
+
+        const updateFilesList = () => {
+            const filesLists = [document.getElementById('saved-files-list'), document.getElementById('saved-files-list-mobile')];
+            files = getSavedFiles();
+            
+            const filesHtml = files.length === 0 ? `
+                <div class="empty-files">
+                    <i class="fas fa-folder-open text-2xl mb-2"></i>
+                    <p class="text-xs">${t('noSavedFiles')}</p>
+                    <p class="text-xs mt-1">${t('clickToSave')}</p>
+                </div>
+            ` : files.map(file => `
+                <div class="file-item ${currentFileId === file.id ? 'active' : ''}" data-file-id="${file.id}">
+                    <i class="fas fa-file-code text-blue-400"></i>
+                    <span class="file-name" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</span>
+                    <span class="file-type">${getChartTypeName(file.chartType)}</span>
+                    <div class="file-actions">
+                        <button onclick="renameFile('${file.id}')" class="text-yellow-400 hover:text-yellow-300" title="Rename">
+                            <i class="fas fa-edit text-xs"></i>
+                        </button>
+                        <button onclick="deleteFile('${file.id}')" class="text-red-400 hover:text-red-300" title="Delete">
+                            <i class="fas fa-trash text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            
+            filesLists.forEach(list => {
+                if (list) {
+                    list.innerHTML = filesHtml;
+                    list.querySelectorAll('.file-item').forEach(item => {
+                        item.addEventListener('click', function(e) {
+                            if (e.target.closest('.file-actions')) return;
+                            const fileId = this.getAttribute('data-file-id');
+                            loadFileById(fileId);
+                        });
+                    });
+                }
+            });
+        };
+
+        const updateCurrentFileIndicator = () => {
+            const indicators = document.querySelectorAll('[data-indicator="current-file"]');
+            
+            indicators.forEach(indicator => {
+                if (currentFileId) {
+                    const file = files.find(f => f.id === currentFileId);
+                    if (file) {
+                        indicator.innerHTML = `
+                            <i class="fas fa-file-code mr-1"></i>
+                            ${t('editingFile')}: ${escapeHtml(file.name)}
+                        `;
+                        indicator.className = 'mb-2 p-2 bg-green-900/30 border border-green-600/50 rounded-lg text-xs text-green-300 backdrop-blur-sm';
+                    }
+                } else {
+                    indicator.innerHTML = `
+                        <i class="fas fa-edit mr-1"></i>
+                        ${t('currentEditing')} (${t('unsaved')})
+                    `;
+                    indicator.className = 'mb-2 p-2 bg-cyan-900/30 border border-cyan-600/50 rounded-lg text-xs text-cyan-300 backdrop-blur-sm';
+                }
+            });
+        };
+
+        const createNewFile = () => {
+            if (editor) {
+                const currentCode = editor.getValue().trim();
+                if (currentCode && !currentFileId && userHasEdited) {
+                    if (confirm(t('saveFirst'))) {
+                        saveCurrentFile();
+                        return;
+                    }
+                }
+                
+                editor.setValue('');
+                currentFileId = null;
+                lastSavedCode = '';
+                userHasEdited = false;
+                [document.getElementById('chart-type'), document.getElementById('chart-type-mobile')].forEach(select => {
+                    if (select) select.value = 'flowchart';
+                });
+                loadExample();
+                updateCurrentFileIndicator();
+                updateFilesList();
+                localStorage.removeItem(CONFIG.STORAGE_KEYS.EDITOR_CODE);
+                localStorage.removeItem(CONFIG.STORAGE_KEYS.EDITOR_TYPE);
+            }
+        };
+
+        const getChartTypeName = (type) => {
+            const typeNames = {
+                flowchart: 'Flow',
+                sequence: 'Seq',
+                class: 'Class',
+                state: 'State',
+                gantt: 'Gantt',
+                pie: 'Pie',
+                erdiagram: 'ER',
+                journey: 'Journey',
+                quadrant: 'Quad',
+                requirement: 'Req',
+                mindmap: 'Mind',
+                timeline: 'Time',
+                c4context: 'C4'
+            };
+            return typeNames[type] || type;
+        };
+
+        // Mermaid rendering functions
+        const initMermaid = () => {
+            mermaid.initialize({
+                startOnLoad: false,
+                theme: 'default',
+                securityLevel: 'loose',
+                flowchart: {
+                    useMaxWidth: true,
+                    htmlLabels: true
+                }
+            });
+        };
+
+        const updateMermaidTheme = () => {
+            let mermaidTheme;
+            
+            if (currentTheme === 'hand') {
+                mermaidTheme = currentBackground === 'black' ? 'dark' : 'base';
+                mermaid.initialize({
+                    startOnLoad: false,
+                    theme: mermaidTheme,
+                    securityLevel: 'loose',
+                    look: 'handDrawn',
+                    handDrawnSeed: 2,
+                    flowchart: {
+                        useMaxWidth: true,
+                        htmlLabels: true,
+                        curve: 'basis',
+                        padding: 20
+                    }
+                });
+            } else {
+                mermaidTheme = currentBackground === 'black' ? 'dark' : 'default';
+                mermaid.initialize({
+                    startOnLoad: false,
+                    theme: mermaidTheme,
+                    securityLevel: 'loose',
+                    flowchart: {
+                        useMaxWidth: true,
+                        htmlLabels: true,
+                        curve: 'linear',
+                        padding: 15
+                    }
+                });
+            }
+        };
+
+        const renderDiagram = async () => {
+            if (isRendering || !editor) return;
+            
+            const code = editor.getValue().trim();
+            const containerId = isMobile ? 'diagram-container-mobile' : 'diagram-container';
+            const container = document.getElementById(containerId);
+            
+            if (!code) {
+                container.innerHTML = `
+                    <div class="text-center text-gray-400">
+                        <i class="fas fa-project-diagram text-4xl mb-4 text-gray-600"></i>
+                        <p data-i18n="inputInstructions">${t('inputInstructions')}</p>
+                        <p class="text-sm mt-2" data-i18n="previewHere">${t('previewHere')}</p>
+                    </div>
+                `;
+                resetPanZoom();
+                hideError();
+                return;
+            }
+
+            isRendering = true;
+            updateStatus('rendering', 'loading');
+
+            try {
+                container.innerHTML = '<div class="loading-spinner mx-auto"></div>';
+
+                const diagramId = 'mermaid-diagram-' + Date.now();
+                
+                const { svg, bindFunctions } = await mermaid.render(diagramId, code);
+                
+                container.innerHTML = svg;
+                
+                if (bindFunctions) {
+                    bindFunctions(container);
+                }
+
+                resetPanZoom();
+                hideError();
+                updateStatus('ready', 'success');
+                
+            } catch (error) {
+                console.error('Mermaid rendering error:', error);
+                container.innerHTML = `
+                    <div class="text-center text-red-400">
+                        <i class="fas fa-exclamation-triangle text-4xl mb-4"></i>
+                        <p>Image conversion failed</p>
+                        <p class="text-sm mt-2 text-gray-400">Please check if syntax is correct</p>
+                    </div>
+                `;
+                
+                const errorMessage = error.message || 'Unknown error';
+                let lineNumber = null;
+                
+                const lineMatch = errorMessage.match(/line (\d+)/i) || 
+                                errorMessage.match(/at line (\d+)/i) ||
+                                errorMessage.match(/\(line (\d+)\)/i) ||
+                                errorMessage.match(/line:(\d+)/i);
+                
+                if (lineMatch) {
+                    lineNumber = parseInt(lineMatch[1]);
+                }
+                
+                if (!lineNumber && error.hash && error.hash.loc) {
+                    lineNumber = error.hash.loc.first_line;
+                }
+                
+                showError(errorMessage, lineNumber);
+                updateStatus('error', 'error');
+            } finally {
+                isRendering = false;
+            }
+        };
+
+        // UI theme functions
+        const switchTheme = (theme) => {
+            const buttonSets = [
+                { classic: document.getElementById('theme-classic'), hand: document.getElementById('theme-hand') },
+                { classic: document.getElementById('theme-classic-mobile'), hand: document.getElementById('theme-hand-mobile') }
+            ];
+            
+            buttonSets.forEach(buttons => {
+                Object.values(buttons).forEach(btn => {
+                    if (btn) btn.classList.remove('theme-button-active');
+                });
+                if (buttons[theme]) buttons[theme].classList.add('theme-button-active');
+            });
+            
+            currentTheme = theme;
+            updateMermaidTheme();
+            
+            if (editor && editor.getValue().trim()) {
+                renderDiagram();
+            }
+        };
+
+        const switchBackground = (type) => {
+            const outputElements = [document.getElementById('mermaid-output'), document.getElementById('mermaid-output-mobile')];
+            const buttonSets = [
+                { white: document.getElementById('bg-white'), black: document.getElementById('bg-black'), transparent: document.getElementById('bg-transparent') },
+                { white: document.getElementById('bg-white-mobile'), black: document.getElementById('bg-black-mobile'), transparent: document.getElementById('bg-transparent-mobile') }
+            ];
+            
+            outputElements.forEach(output => {
+                if (output) {
+                    output.classList.remove('bg-white-theme', 'bg-black-theme', 'bg-transparent-theme');
+                }
+            });
+            
+            buttonSets.forEach(buttons => {
+                Object.values(buttons).forEach(btn => {
+                    if (btn) btn.classList.remove('bg-button-active');
+                });
+            });
+            
+            switch(type) {
+                case 'white':
+                    outputElements.forEach(output => {
+                        if (output) output.classList.add('bg-white-theme');
+                    });
+                    buttonSets.forEach(buttons => {
+                        if (buttons.white) buttons.white.classList.add('bg-button-active');
+                    });
+                    break;
+                case 'transparent':
+                    outputElements.forEach(output => {
+                        if (output) output.classList.add('bg-transparent-theme');
+                    });
+                    buttonSets.forEach(buttons => {
+                        if (buttons.transparent) buttons.transparent.classList.add('bg-button-active');
+                    });
+                    break;
+                case 'black':
+                default:
+                    outputElements.forEach(output => {
+                        if (output) output.classList.add('bg-black-theme');
+                    });
+                    buttonSets.forEach(buttons => {
+                        if (buttons.black) buttons.black.classList.add('bg-button-active');
+                    });
+                    break;
+            }
+            
+            currentBackground = type;
+            updateMermaidTheme();
+            
+            if (editor && editor.getValue().trim()) {
+                renderDiagram();
+            }
+        };
+
+        // Pan and zoom functions
+        const updateDiagramTransform = () => {
+            const containers = [document.getElementById('diagram-container'), document.getElementById('diagram-container-mobile')];
+            const zoomLevels = [document.getElementById('zoom-level'), document.getElementById('zoom-level-mobile')];
+            
+            containers.forEach(container => {
+                if (container) {
+                    container.style.transform = `translate(${panX}px, ${panY}px) scale(${currentZoom})`;
+                }
+            });
+            
+            zoomLevels.forEach(level => {
+                if (level) {
+                    level.textContent = Math.round(currentZoom * 100) + '%';
+                }
+            });
+        };
+
+        const zoomIn = () => {
+            currentZoom = Math.min(currentZoom * CONFIG.ZOOM_FACTOR, CONFIG.ZOOM_LIMITS.MAX);
+            updateDiagramTransform();
+        };
+
+        const zoomOut = () => {
+            currentZoom = Math.max(currentZoom / CONFIG.ZOOM_FACTOR, CONFIG.ZOOM_LIMITS.MIN);
+            updateDiagramTransform();
+        };
+
+        const resetPanZoom = () => {
+            currentZoom = CONFIG.DEFAULT_ZOOM;
+            panX = 0;
+            panY = 0;
+            updateDiagramTransform();
+        };
+
+        const setupPanZoom = () => {
+            const viewports = [document.getElementById('diagram-viewport'), document.getElementById('diagram-viewport-mobile')];
+            const outputs = [document.getElementById('mermaid-output'), document.getElementById('mermaid-output-mobile')];
+            
+            viewports.forEach((viewport, index) => {
+                if (!viewport) return;
+                
+                const output = outputs[index];
+                
+                viewport.addEventListener('wheel', function(e) {
+                    e.preventDefault();
+                    
+                    const rect = viewport.getBoundingClientRect();
+                    const mouseX = e.clientX - rect.left;
+                    const mouseY = e.clientY - rect.top;
+                    
+                    const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+                    const newZoom = Math.max(CONFIG.ZOOM_LIMITS.MIN, Math.min(CONFIG.ZOOM_LIMITS.MAX, currentZoom * zoomFactor));
+                    
+                    const zoomRatio = newZoom / currentZoom;
+                    panX = mouseX - (mouseX - panX) * zoomRatio;
+                    panY = mouseY - (mouseY - panY) * zoomRatio;
+                    
+                    currentZoom = newZoom;
+                    updateDiagramTransform();
+                });
+                
+                viewport.addEventListener('mousedown', function(e) {
+                    isDragging = true;
+                    dragStartX = e.clientX;
+                    dragStartY = e.clientY;
+                    startPanX = panX;
+                    startPanY = panY;
+                    if (output) output.classList.add('dragging');
+                    e.preventDefault();
+                });
+                
+                // Touch support
+                let touchStartDistance = 0;
+                let touchStartZoom = 1;
+                
+                viewport.addEventListener('touchstart', function(e) {
+                    if (e.touches.length === 1) {
+                        isDragging = true;
+                        dragStartX = e.touches[0].clientX;
+                        dragStartY = e.touches[0].clientY;
+                        startPanX = panX;
+                        startPanY = panY;
+                    } else if (e.touches.length === 2) {
+                        isDragging = false;
+                        const touch1 = e.touches[0];
+                        const touch2 = e.touches[1];
+                        touchStartDistance = Math.sqrt(
+                            Math.pow(touch2.clientX - touch1.clientX, 2) +
+                            Math.pow(touch2.clientY - touch1.clientY, 2)
+                        );
+                        touchStartZoom = currentZoom;
+                    }
+                    e.preventDefault();
+                });
+                
+                viewport.addEventListener('touchmove', function(e) {
+                    if (e.touches.length === 1 && isDragging) {
+                        const deltaX = e.touches[0].clientX - dragStartX;
+                        const deltaY = e.touches[0].clientY - dragStartY;
+                        
+                        panX = startPanX + deltaX;
+                        panY = startPanY + deltaY;
+                        
+                        updateDiagramTransform();
+                    } else if (e.touches.length === 2) {
+                        const touch1 = e.touches[0];
+                        const touch2 = e.touches[1];
+                        const currentDistance = Math.sqrt(
+                            Math.pow(touch2.clientX - touch1.clientX, 2) +
+                            Math.pow(touch2.clientY - touch1.clientY, 2)
+                        );
+                        
+                        const zoomRatio = currentDistance / touchStartDistance;
+                        currentZoom = Math.max(CONFIG.ZOOM_LIMITS.MIN, Math.min(CONFIG.ZOOM_LIMITS.MAX, touchStartZoom * zoomRatio));
+                        
+                        updateDiagramTransform();
+                    }
+                    e.preventDefault();
+                });
+                
+                viewport.addEventListener('touchend', function() {
+                    isDragging = false;
+                });
+            });
+            
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+                
+                const deltaX = e.clientX - dragStartX;
+                const deltaY = e.clientY - dragStartY;
+                
+                panX = startPanX + deltaX;
+                panY = startPanY + deltaY;
+                
+                updateDiagramTransform();
+            });
+            
+            document.addEventListener('mouseup', function() {
+                if (isDragging) {
+                    isDragging = false;
+                    outputs.forEach(output => {
+                        if (output) output.classList.remove('dragging');
+                    });
+                }
+            });
+        };
+
+        // Export functions
+        const exportPNG = (scale = 2, customWidth = null, customHeight = null) => {
+            const svgElement = document.querySelector(`${isMobile ? '#mermaid-output-mobile' : '#mermaid-output'} svg`);
+            if (!svgElement) {
+                alert(t('noChart'));
+                return;
+            }
+
+            const exportBtns = [document.getElementById('export-btn'), document.getElementById('export-btn-mobile')];
+            exportBtns.forEach(btn => {
+                if (btn) {
+                    const originalContent = btn.innerHTML;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i><span class="hidden sm:inline text-xs">' + t('exporting') + '</span>';
+                    btn.disabled = true;
+                    
+                    setTimeout(() => {
+                        btn.innerHTML = originalContent;
+                        btn.disabled = false;
+                    }, 10000);
+                }
+            });
+
+            try {
+                const svgClone = svgElement.cloneNode(true);
+                
+                svgClone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+                svgClone.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+                
+                let width, height;
+                
+                if (customWidth && customHeight) {
+                    width = customWidth;
+                    height = customHeight;
+                } else {
+                    if (svgClone.viewBox && svgClone.viewBox.baseVal && svgClone.viewBox.baseVal.width > 0) {
+                        width = svgClone.viewBox.baseVal.width;
+                        height = svgClone.viewBox.baseVal.height;
+                    } else {
+                        const svgRect = svgElement.getBoundingClientRect();
+                        width = parseFloat(svgClone.getAttribute('width')) || svgRect.width || 800;
+                        height = parseFloat(svgClone.getAttribute('height')) || svgRect.height || 600;
+                    }
+                }
+                
+                svgClone.setAttribute('width', width);
+                svgClone.setAttribute('height', height);
+                
+                // Create an offscreen canvas
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                canvas.width = width * scale;
+                canvas.height = height * scale;
+                ctx.scale(scale, scale);
+                
+                switch(currentBackground) {
+                    case 'white':
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillRect(0, 0, width, height);
+                        break;
+                    case 'black':
+                        ctx.fillStyle = '#0f0f0f';
+                        ctx.fillRect(0, 0, width, height);
+                        break;
+                }
+
+                const svgData = new XMLSerializer().serializeToString(svgClone);
+                
+                // Create a more compatible data URL for mobile
+                const svgDataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgData);
+                
+                const img = new Image();
+                // Don't set crossOrigin for data URLs
+                
+                img.onload = function() {
+                    try {
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        // Use a timeout to ensure the canvas is fully rendered
+                        setTimeout(() => {
+                            try {
+                                canvas.toBlob((blob) => {
+                                    if (!blob) {
+                                        throw new Error('Failed to create blob from canvas');
+                                    }
+                                    
+                                    const link = document.createElement('a');
+                                    const scaleText = customWidth ? `${customWidth}x${customHeight}` : `${scale}x`;
+                                    link.download = `mermaid-diagram-${scaleText}.png`;
+                                    link.href = URL.createObjectURL(blob);
+                                    
+                                    // For mobile compatibility, trigger click differently
+                                    if (isMobile) {
+                                        // Use a different approach for mobile
+                                        const evt = new MouseEvent('click', {
+                                            view: window,
+                                            bubbles: true,
+                                            cancelable: true
+                                        });
+                                        link.dispatchEvent(evt);
+                                    } else {
+                                        document.body.appendChild(link);
+                                        link.click();
+                                        document.body.removeChild(link);
+                                    }
+                                    
+                                    URL.revokeObjectURL(link.href);
+                                    
+                                    exportBtns.forEach(btn => {
+                                        if (btn) {
+                                            btn.innerHTML = '<i class="fas fa-check mr-2"></i><span class="hidden sm:inline text-xs">' + t('exported') + '</span>';
+                                            setTimeout(() => {
+                                                btn.innerHTML = '<i class="fas fa-download text-xs"></i><span class="hidden sm:inline text-xs">' + t('exportPNG') + '</span>';
+                                                btn.disabled = false;
+                                            }, 2000);
+                                        }
+                                    });
+                                    
+                                }, 'image/png', 0.95);
+                            } catch (blobError) {
+                                console.error('Blob creation failed:', blobError);
+                                // Fallback: try to save as data URL
+                                try {
+                                    const dataUrl = canvas.toDataURL('image/png');
+                                    const link = document.createElement('a');
+                                    const scaleText = customWidth ? `${customWidth}x${customHeight}` : `${scale}x`;
+                                    link.download = `mermaid-diagram-${scaleText}.png`;
+                                    link.href = dataUrl;
+                                    link.click();
+                                    
+                                    exportBtns.forEach(btn => {
+                                        if (btn) {
+                                            btn.innerHTML = '<i class="fas fa-check mr-2"></i><span class="hidden sm:inline text-xs">' + t('exported') + '</span>';
+                                            setTimeout(() => {
+                                                btn.innerHTML = '<i class="fas fa-download text-xs"></i><span class="hidden sm:inline text-xs">' + t('exportPNG') + '</span>';
+                                                btn.disabled = false;
+                                            }, 2000);
+                                        }
+                                    });
+                                } catch (dataUrlError) {
+                                    console.error('Data URL export failed:', dataUrlError);
+                                    alert(t('exportPNG') + ' failed: ' + dataUrlError.message);
+                                    exportBtns.forEach(btn => {
+                                        if (btn) {
+                                            btn.innerHTML = '<i class="fas fa-download text-xs"></i><span class="hidden sm:inline text-xs">' + t('exportPNG') + '</span>';
+                                            btn.disabled = false;
+                                        }
+                                    });
+                                }
+                            }
+                        }, 100);
+                        
+                    } catch (error) {
+                        console.error('Canvas drawing failed:', error);
+                        alert(t('exportPNG') + ' failed: ' + error.message);
+                        exportBtns.forEach(btn => {
+                            if (btn) {
+                                btn.innerHTML = '<i class="fas fa-download text-xs"></i><span class="hidden sm:inline text-xs">' + t('exportPNG') + '</span>';
+                                btn.disabled = false;
+                            }
+                        });
+                    }
+                };
+                
+                img.onerror = function(error) {
+                    console.error('SVG image loading failed:', error);
+                    alert(t('exportPNG') + ' failed: SVG image loading error');
+                    exportBtns.forEach(btn => {
+                        if (btn) {
+                            btn.innerHTML = '<i class="fas fa-download text-xs"></i><span class="hidden sm:inline text-xs">' + t('exportPNG') + '</span>';
+                            btn.disabled = false;
+                        }
+                    });
+                };
+                
+                img.src = svgDataUrl;
+                
+            } catch (error) {
+                console.error('PNG export error:', error);
+                alert(t('exportPNG') + ' failed: ' + error.message);
+                exportBtns.forEach(btn => {
+                    if (btn) {
+                        btn.innerHTML = '<i class="fas fa-download text-xs"></i><span class="hidden sm:inline text-xs">' + t('exportPNG') + '</span>';
+                        btn.disabled = false;
+                    }
+                });
+            }
+        };
+
+        const showCustomSizeDialog = () => {
+            const svgElement = document.querySelector(`${isMobile ? '#mermaid-output-mobile' : '#mermaid-output'} svg`);
+            if (!svgElement) {
+                alert(t('noChart'));
+                return;
+            }
+
+            const svgRect = svgElement.getBoundingClientRect();
+            const currentWidth = svgElement.viewBox ? svgElement.viewBox.baseVal.width : svgRect.width || 800;
+            const currentHeight = svgElement.viewBox ? svgElement.viewBox.baseVal.height : svgRect.height || 600;
+
+            const width = prompt(t('inputWidth'), Math.round(currentWidth));
+            if (width === null) return;
+
+            const height = prompt(t('inputHeight'), Math.round(currentHeight));
+            if (height === null) return;
+
+            const widthNum = parseInt(width);
+            const heightNum = parseInt(height);
+
+            if (isNaN(widthNum) || isNaN(heightNum) || widthNum <= 0 || heightNum <= 0) {
+                alert(t('invalidNumber'));
+                return;
+            }
+
+            if (widthNum > 10000 || heightNum > 10000) {
+                if (!confirm(t('largeSizeWarning'))) {
+                    return;
+                }
+            }
+
+            exportPNG(1, widthNum, heightNum);
+        };
+
+        const exportSVG = () => {
+            const svgElement = document.querySelector(`${isMobile ? '#mermaid-output-mobile' : '#mermaid-output'} svg`);
+            if (!svgElement) {
+                alert(t('noChart'));
+                return;
+            }
+
+            const svgData = new XMLSerializer().serializeToString(svgElement);
+            const blob = new Blob([svgData], { type: 'image/svg+xml' });
+            const link = document.createElement('a');
+            link.download = 'mermaid-diagram.svg';
+            link.href = URL.createObjectURL(blob);
+            link.click();
+            URL.revokeObjectURL(link.href);
+        };
+
+        const copyToClipboard = async () => {
+            const svgElement = document.querySelector(`${isMobile ? '#mermaid-output-mobile' : '#mermaid-output'} svg`);
+            if (!svgElement) {
+                alert(t('noChartCopy'));
+                return;
+            }
+
+            const copyBtns = [document.getElementById('copy-btn'), document.getElementById('copy-btn-mobile')];
+            copyBtns.forEach(btn => {
+                if (btn && btn.querySelector('span')) {
+                    btn.querySelector('span').textContent = t('copying');
+                }
+            });
+
+            try {
+                if (!navigator.clipboard || !navigator.clipboard.write) {
+                    throw new Error('Browser does not support clipboard API');
+                }
+
+                const svgClone = svgElement.cloneNode(true);
+                svgClone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+                svgClone.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+                
+                const svgRect = svgElement.getBoundingClientRect();
+                let width, height;
+                
+                if (svgClone.viewBox && svgClone.viewBox.baseVal && svgClone.viewBox.baseVal.width > 0) {
+                    width = svgClone.viewBox.baseVal.width;
+                    height = svgClone.viewBox.baseVal.height;
+                } else {
+                    width = parseFloat(svgClone.getAttribute('width')) || svgRect.width || 800;
+                    height = parseFloat(svgClone.getAttribute('height')) || svgRect.height || 600;
+                }
+                
+                svgClone.setAttribute('width', width);
+                svgClone.setAttribute('height', height);
+                
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const scale = 2;
+                
+                canvas.width = width * scale;
+                canvas.height = height * scale;
+                ctx.scale(scale, scale);
+                
+                switch(currentBackground) {
+                    case 'white':
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillRect(0, 0, width, height);
+                        break;
+                    case 'black':
+                        ctx.fillStyle = '#0f0f0f';
+                        ctx.fillRect(0, 0, width, height);
+                        break;
+                }
+
+                const svgData = new XMLSerializer().serializeToString(svgClone);
+                const svgDataUrl = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+                
+                const img = new Image();
+                
+                await new Promise((resolve, reject) => {
+                    img.onload = function() {
+                        try {
+                            ctx.drawImage(img, 0, 0, width, height);
+                            
+                            canvas.toBlob(async (blob) => {
+                                if (!blob) {
+                                    reject(new Error('Failed to create blob from canvas'));
+                                    return;
+                                }
+                                
+                                try {
+                                    const clipboardItem = new ClipboardItem({ 'image/png': blob });
+                                    await navigator.clipboard.write([clipboardItem]);
+                                    
+                                    copyBtns.forEach(btn => {
+                                        if (btn && btn.querySelector('span')) {
+                                            btn.querySelector('span').textContent = t('copied');
+                                        }
+                                    });
+                                    
+                                    setTimeout(() => {
+                                        copyBtns.forEach(btn => {
+                                            if (btn && btn.querySelector('span')) {
+                                                btn.querySelector('span').textContent = t('copyImage');
+                                            }
+                                        });
+                                    }, 2000);
+                                    
+                                    resolve();
+                                } catch (clipError) {
+                                    reject(clipError);
+                                }
+                            }, 'image/png', 0.95);
+                                
+                        } catch (error) {
+                            reject(error);
+                        }
+                    };
+                    
+                    img.onerror = function(error) {
+                        reject(new Error('SVG image loading failed'));
+                    };
+                    
+                    img.src = svgDataUrl;
+                });
+                
+            } catch (error) {
+                console.error('Copy operation failed:', error);
+                
+                copyBtns.forEach(btn => {
+                    if (btn && btn.querySelector('span')) {
+                        btn.querySelector('span').textContent = t('copyFailed');
+                    }
+                });
+                
+                setTimeout(() => {
+                    copyBtns.forEach(btn => {
+                        if (btn && btn.querySelector('span')) {
+                            btn.querySelector('span').textContent = t('copyImage');
+                        }
+                    });
+                }, 2000);
+                
+                if (confirm('Copy to clipboard failed. Download PNG image as alternative?')) {
+                    exportPNG();
+                }
+            }
+        };
+
+        // UI helper functions
+        const showError = (message, lineNumber = null) => {
+            let displayMessage = message;
+            
+            if (lineNumber) {
+                displayMessage = `Line ${lineNumber}: ${message}`;
+                
+                if (editor && editor.getModel) {
+                    const model = editor.getModel();
+                    const totalLines = model.getLineCount();
+                    
+                    if (lineNumber <= totalLines) {
+                        const decorations = editor.deltaDecorations([], [{
+                            range: new monaco.Range(lineNumber, 1, lineNumber, 1),
+                            options: {
+                                isWholeLine: true,
+                                className: 'error-line',
+                                glyphMarginClassName: 'error-glyph',
+                                hoverMessage: { value: message }
+                            }
+                        }]);
+                        
+                        setTimeout(() => {
+                            if (editor && editor.deltaDecorations) {
+                                editor.deltaDecorations(decorations, []);
+                            }
+                        }, 5000);
+                        
+                        editor.revealLineInCenter(lineNumber);
+                    }
+                }
+            }
+            
+            document.getElementById('error-message').textContent = displayMessage;
+            document.getElementById('error-display').classList.remove('hidden');
+        };
+
+        const hideError = () => {
+            document.getElementById('error-display').classList.add('hidden');
+        };
+
+        const updateStatus = (text, type) => {
+            const dots = [document.getElementById('status-dot'), document.getElementById('status-dot-mobile')];
+            const spans = [document.getElementById('status-text'), document.getElementById('status-text-mobile')];
+            
+            const colorClass = type === 'success' ? 'bg-green-400' : 
+                             type === 'loading' ? 'bg-yellow-400' : 
+                             type === 'error' ? 'bg-red-400' : 'bg-gray-400';
+            
+            dots.forEach(dot => {
+                if (dot) {
+                    dot.className = 'w-2 h-2 rounded-full ' + colorClass;
+                }
+            });
+            
+            let translatedText = text;
+            if (text === 'rendering') translatedText = t('rendering');
+            else if (text === 'ready') translatedText = t('ready');
+            else if (text === 'error') translatedText = t('error');
+            
+            spans.forEach(span => {
+                if (span) {
+                    span.textContent = translatedText;
+                }
+            });
+        };
+
+        // Dropdown management
+        const toggleExportDropdown = () => {
+            const dropdown = document.getElementById('export-dropdown');
+            dropdown.classList.toggle('hidden');
+        };
+
+        // Layout management
+        const updateLayout = () => {
+            const isMobileNow = checkMobile();
+            const desktopLayout = document.getElementById('desktop-layout');
+            const mobileLayout = document.getElementById('mobile-layout');
+            
+            if (isMobileNow !== isMobile) {
+                isMobile = isMobileNow;
+                
+                if (isMobile) {
+                    desktopLayout.classList.add('hidden');
+                    mobileLayout.classList.remove('hidden');
+                    // Reset mobile initialization flag
+                    mobileEditorInitialized = false;
+                    setTimeout(() => initEditor(), 100);
+                } else {
+                    desktopLayout.classList.remove('hidden');
+                    mobileLayout.classList.add('hidden');
+                    // Reset desktop initialization flag
+                    desktopEditorInitialized = false;
+                    setTimeout(() => initEditor(), 100);
+                }
+            }
+        };
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check mobile and set layout
+            updateLayout();
+            
+            loadSavedLanguage();
+            initMermaid();
+            initEditor();
+            setupPanZoom();
+            
+            files = getSavedFiles();
+            updateFilesList();
+            updateCurrentFileIndicator();
+
+            // Language selector
+            document.getElementById('language-btn').addEventListener('click', function() {
+                document.getElementById('language-dropdown').classList.toggle('hidden');
+            });
+            
+            document.querySelectorAll('.language-option').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const lang = this.dataset.lang;
+                    switchLanguage(lang);
+                    document.getElementById('language-dropdown').classList.add('hidden');
+                });
+            });
+
+            // Fullscreen functionality
+            [document.getElementById('fullscreen-btn'), document.getElementById('fullscreen-btn-mobile')].forEach(btn => {
+                if (btn) btn.addEventListener('click', toggleFullscreen);
+            });
+            
+            // Listen for fullscreen changes
+            document.addEventListener('fullscreenchange', function() {
+                if (!document.fullscreenElement) {
+                    const mainContent = document.getElementById('main-content');
+                    const fullscreenIcons = [document.getElementById('fullscreen-icon'), document.getElementById('fullscreen-icon-mobile')];
+                    const fullscreenTexts = [document.getElementById('fullscreen-btn'), document.getElementById('fullscreen-btn-mobile')]
+                        .map(btn => btn?.querySelector('span')).filter(Boolean);
+                    
+                    mainContent.classList.remove('fullscreen-mode');
+                    fullscreenIcons.forEach(icon => {
+                        if (icon) icon.className = 'fas fa-expand text-xs';
+                    });
+                    fullscreenTexts.forEach(text => {
+                        text.textContent = t('fullscreen');
+                    });
+                    isFullscreen = false;
+                }
+            });
+
+            // Theme controls
+            [
+                { classic: document.getElementById('theme-classic'), hand: document.getElementById('theme-hand') },
+                { classic: document.getElementById('theme-classic-mobile'), hand: document.getElementById('theme-hand-mobile') }
+            ].forEach(buttons => {
+                if (buttons.classic) buttons.classic.addEventListener('click', () => switchTheme('classic'));
+                if (buttons.hand) buttons.hand.addEventListener('click', () => switchTheme('hand'));
+            });
+            
+            // Zoom controls
+            [
+                { in: document.getElementById('zoom-in'), out: document.getElementById('zoom-out'), reset: document.getElementById('zoom-reset') },
+                { in: document.getElementById('zoom-in-mobile'), out: document.getElementById('zoom-out-mobile'), reset: document.getElementById('zoom-reset-mobile') }
+            ].forEach(buttons => {
+                if (buttons.in) buttons.in.addEventListener('click', zoomIn);
+                if (buttons.out) buttons.out.addEventListener('click', zoomOut);
+                if (buttons.reset) buttons.reset.addEventListener('click', resetPanZoom);
+            });
+            
+            // Chart type handlers
+            [document.getElementById('chart-type'), document.getElementById('chart-type-mobile')].forEach(select => {
+                if (select) {
+                    select.addEventListener('change', () => {
+                        // Sync both selects
+                        const value = select.value;
+                        [document.getElementById('chart-type'), document.getElementById('chart-type-mobile')].forEach(s => {
+                            if (s && s !== select) s.value = value;
+                        });
+                        
+                        loadExample();
+                        saveCode();
+                        currentFileId = null;
+                        updateCurrentFileIndicator();
+                    });
+                }
+            });
+
+            // File management
+            [document.getElementById('save-file-btn'), document.getElementById('save-file-btn-mobile')].forEach(btn => {
+                if (btn) btn.addEventListener('click', () => saveCurrentFile(false));
+            });
+            
+            [document.getElementById('add-new-file'), document.getElementById('add-new-file-mobile')].forEach(btn => {
+                if (btn) btn.addEventListener('click', createNewFile);
+            });
+            
+            // Undo/Redo button handlers
+            [document.getElementById('undo-btn'), document.getElementById('undo-btn-mobile')].forEach(btn => {
+                if (btn) btn.addEventListener('click', performUndo);
+            });
+            
+            [document.getElementById('redo-btn'), document.getElementById('redo-btn-mobile')].forEach(btn => {
+                if (btn) btn.addEventListener('click', performRedo);
+            });
+
+            // Export controls
+            [document.getElementById('export-btn'), document.getElementById('export-btn-mobile')].forEach(btn => {
+                if (btn) btn.addEventListener('click', toggleExportDropdown);
+            });
+            
+            document.querySelectorAll('.export-resolution').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const scale = parseInt(this.dataset.scale);
+                    exportPNG(scale);
+                    document.getElementById('export-dropdown').classList.add('hidden');
+                });
+            });
+            
+            document.getElementById('export-custom').addEventListener('click', function() {
+                showCustomSizeDialog();
+                document.getElementById('export-dropdown').classList.add('hidden');
+            });
+            
+            [document.getElementById('export-svg-btn'), document.getElementById('export-svg-btn-mobile')].forEach(btn => {
+                if (btn) btn.addEventListener('click', exportSVG);
+            });
+            
+            [document.getElementById('copy-btn'), document.getElementById('copy-btn-mobile')].forEach(btn => {
+                if (btn) btn.addEventListener('click', copyToClipboard);
+            });
+            
+            // Background controls
+            [
+                { white: document.getElementById('bg-white'), black: document.getElementById('bg-black'), transparent: document.getElementById('bg-transparent') },
+                { white: document.getElementById('bg-white-mobile'), black: document.getElementById('bg-black-mobile'), transparent: document.getElementById('bg-transparent-mobile') }
+            ].forEach(buttons => {
+                if (buttons.white) buttons.white.addEventListener('click', () => switchBackground('white'));
+                if (buttons.black) buttons.black.addEventListener('click', () => switchBackground('black'));
+                if (buttons.transparent) buttons.transparent.addEventListener('click', () => switchBackground('transparent'));
+            });
+            
+            // Click outside to close dropdowns
+            document.addEventListener('click', function(e) {
+                const languageBtn = document.getElementById('language-btn');
+                const languageDropdown = document.getElementById('language-dropdown');
+                const exportBtns = [document.getElementById('export-btn'), document.getElementById('export-btn-mobile')];
+                const exportDropdown = document.getElementById('export-dropdown');
+                
+                if (!languageBtn.contains(e.target) && !languageDropdown.contains(e.target)) {
+                    languageDropdown.classList.add('hidden');
+                }
+                
+                if (!exportBtns.some(btn => btn?.contains(e.target)) && !exportDropdown.contains(e.target)) {
+                    exportDropdown.classList.add('hidden');
+                }
+            });
+            
+            // Window resize handler
+            window.addEventListener('resize', debounce(() => {
+                updateLayout();
+            }, 250));
+            
+            // Initialize default settings
+            switchBackground('white');
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 's':
+                        e.preventDefault();
+                        if (e.shiftKey) {
+                            saveCurrentFile(false);
+                        } else {
+                            exportSVG();
+                        }
+                        break;
+                    case 'p':
+                        e.preventDefault();
+                        exportPNG();
+                        break;
+                    case 'c':
+                        e.preventDefault();
+                        copyToClipboard();
+                        break;
+                    case 'z':
+                        if (e.shiftKey) {
+                            e.preventDefault();
+                            performRedo();
+                        } else {
+                            e.preventDefault();
+                            performUndo();
+                        }
+                        break;
+                    case 'y':
+                        e.preventDefault();
+                        performRedo();
+                        break;
+                    case 'Enter':
+                        if (e.shiftKey) {
+                            e.preventDefault();
+                            toggleFullscreen();
+                        }
+                        break;
+                }
+            } else if (e.key === 'Escape' && isFullscreen) {
+                e.preventDefault();
+                toggleFullscreen();
+            }
+        });
+
+        // Auto-save functionality
+        let userHasEdited = false;
+        let lastEditTime = 0;
+        
+        const startAutoSave = () => {
+            if (autoSaveInterval) {
+                clearInterval(autoSaveInterval);
+            }
+            
+            // Auto-save every 5 seconds
+            autoSaveInterval = setInterval(() => {
+                if (hasUnsavedChanges() && userHasEdited) {
+                    performAutoSave();
+                }
+            }, 5000);
+        };
+        
+        const stopAutoSave = () => {
+            if (autoSaveInterval) {
+                clearInterval(autoSaveInterval);
+                autoSaveInterval = null;
+            }
+        };
+        
+        const hasUnsavedChanges = () => {
+            if (!editor) return false;
+            
+            const currentCode = editor.getValue().trim();
+            return currentCode !== lastSavedCode && currentCode !== '';
+        };
+        
+        const generateAutoFileName = () => {
+            const now = new Date();
+            const chartType = (document.getElementById('chart-type') || document.getElementById('chart-type-mobile')).value;
+            const timestamp = now.toISOString().slice(0, 16).replace(/[-:]/g, '').replace('T', '_');
+            
+            const typeNames = {
+                flowchart: 'Flow',
+                sequence: 'Sequence',
+                class: 'Class',
+                state: 'State',
+                gantt: 'Gantt',
+                pie: 'Pie',
+                erdiagram: 'ER',
+                journey: 'Journey',
+                quadrant: 'Quadrant',
+                requirement: 'Requirement',
+                mindmap: 'Mindmap',
+                timeline: 'Timeline',
+                c4context: 'C4Context'
+            };
+            
+            const typeName = typeNames[chartType] || 'Diagram';
+            return `${typeName}_${timestamp}`;
+        };
+        
+        const performAutoSave = () => {
+            if (!editor || isAutoSaving) return;
+            
+            const currentCode = editor.getValue().trim();
+            if (!currentCode || currentCode === lastSavedCode) return;
+            
+            isAutoSaving = true;
+            
+            // Show auto-saving animation
+            const saveBtns = [document.getElementById('save-file-btn'), document.getElementById('save-file-btn-mobile')];
+            const originalContents = [];
+            
+            saveBtns.forEach((btn, index) => {
+                if (btn) {
+                    originalContents[index] = btn.innerHTML;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-pulse mr-1"></i>' + t('autoSaving');
+                    btn.style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
+                    btn.style.color = 'white';
+                }
+            });
+            
+            // Perform auto-save
+            setTimeout(() => {
+                try {
+                    if (currentFileId) {
+                        // Update existing file
+                        files = getSavedFiles();
+                        const fileIndex = files.findIndex(f => f.id === currentFileId);
+                        if (fileIndex >= 0) {
+                            const chartType = (document.getElementById('chart-type') || document.getElementById('chart-type-mobile')).value;
+                            files[fileIndex].code = currentCode;
+                            files[fileIndex].chartType = chartType;
+                            files[fileIndex].updatedAt = new Date().toISOString();
+                            
+                            setSavedFiles(files);
+                            updateFilesList();
+                        }
+                    } else {
+                        // Create new file with auto-generated name
+                        const autoFileName = generateAutoFileName();
+                        const chartType = (document.getElementById('chart-type') || document.getElementById('chart-type-mobile')).value;
+                        files = getSavedFiles();
+                        
+                        // Check if auto-generated name already exists
+                        let finalName = autoFileName;
+                        let counter = 1;
+                        while (files.some(f => f.name === finalName)) {
+                            finalName = `${autoFileName}_${counter}`;
+                            counter++;
+                        }
+                        
+                        const newFile = {
+                            id: generateFileId(),
+                            name: finalName,
+                            code: currentCode,
+                            chartType: chartType,
+                            createdAt: new Date().toISOString(),
+                            updatedAt: new Date().toISOString()
+                        };
+                        
+                        files.push(newFile);
+                        setSavedFiles(files);
+                        updateFilesList();
+                        
+                        currentFileId = newFile.id;
+                        updateCurrentFileIndicator();
+                        
+                        // Clear temp storage
+                        localStorage.removeItem('temp-unsaved-code');
+                        localStorage.removeItem('temp-unsaved-type');
+                    }
+                    
+                    lastSavedCode = currentCode;
+                    userHasEdited = false; // Reset edit flag after auto-save
+                    
+                    // Show success state
+                    saveBtns.forEach((btn, index) => {
+                        if (btn) {
+                            btn.innerHTML = '<i class="fas fa-check mr-1"></i>' + t('autoSaved');
+                            btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                            btn.style.color = 'white';
+                        }
+                    });
+                    
+                    // Restore original state after delay
+                    setTimeout(() => {
+                        saveBtns.forEach((btn, index) => {
+                            if (btn && originalContents[index]) {
+                                btn.innerHTML = originalContents[index];
+                                btn.style.background = '';
+                                btn.style.color = '';
+                            }
+                        });
+                    }, 2000);
+                    
+                } catch (error) {
+                    console.error('Auto-save failed:', error);
+                    
+                    // Restore original state on error
+                    saveBtns.forEach((btn, index) => {
+                        if (btn && originalContents[index]) {
+                            btn.innerHTML = originalContents[index];
+                            btn.style.background = '';
+                            btn.style.color = '';
+                        }
+                    });
+                }
+                
+                isAutoSaving = false;
+            }, 500);
+        };
+        
+        // Page visibility change handler
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && userHasEdited) {
+                performAutoSave();
+            }
+        });
+        
+        // Before unload handler
+        window.addEventListener('beforeunload', (e) => {
+            if (hasUnsavedChanges() && userHasEdited) {
+                performAutoSave();
+            }
+        });
+
+        // Make functions global for HTML onclick handlers
+        window.renameFile = renameFile;
+        window.deleteFile = deleteFile;
+    </script>
+<script>window.onload=function(){var d=document.createElement("div");d.id="aionspaceLoadFinished";document.body.appendChild(d);};</script><script>window.onload=function(){var d=document.createElement("div");d.id="aionspaceLoadFinished";document.body.appendChild(d);};</script><script>window.onload=function(){var d=document.createElement("div");d.id="aionspaceLoadFinished";document.body.appendChild(d);};</script><script>window.onload=function(){var d=document.createElement("div");d.id="aionspaceLoadFinished";document.body.appendChild(d);};</script><script>window.onload=function(){var d=document.createElement("div");d.id="aionspaceLoadFinished";document.body.appendChild(d);};</script><script>window.onload=function(){var d=document.createElement("div");d.id="aionspaceLoadFinished";document.body.appendChild(d);};</script><script>window.onload=function(){var d=document.createElement("div");d.id="aionspaceLoadFinished";document.body.appendChild(d);};</script><script>window.onload=function(){var d=document.createElement("div");d.id="aionspaceLoadFinished";document.body.appendChild(d);};</script><script>window.onload=function(){var d=document.createElement("div");d.id="aionspaceLoadFinished";document.body.appendChild(d);};</script><script>window.onload=function(){var d=document.createElement("div");d.id="aionspaceLoadFinished";document.body.appendChild(d);};</script><script>window.onload=function(){var d=document.createElement("div");d.id="aionspaceLoadFinished";document.body.appendChild(d);};</script><script>window.onload=function(){var d=document.createElement("div");d.id="aionspaceLoadFinished";document.body.appendChild(d);};</script><script>window.onload=function(){var d=document.createElement("div");d.id="aionspaceLoadFinished";document.body.appendChild(d);};</script></body>
+
+
+
+
+
+
+
+
+
+
+
+
+</html>
